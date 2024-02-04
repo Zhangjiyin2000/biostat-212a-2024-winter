@@ -1,0 +1,528 @@
+---
+title: "Biostat 212a Homework 2"
+subtitle: "Due Feb 6, 2024 @ 11:59PM"
+author: "Jiyin (Jenny) Zhang, UID:606331859"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+## ISL Exercise 4.8.1 (10pts)
+1. Using a little bit of algebra, prove that 
+$p(X)=\frac{e^{\beta_0+\beta_1X}}{1+e^{\beta_0+\beta_1X}}$ is equivalent to 
+$\frac {p(X)} {1-p(X)} = e^{\beta_0+\beta_1X}$. In other words, the logistic 
+function representation and logit representation for the logistic regression 
+model are equivalent.
+
+**Answer:**
+
+$$ 
+\begin{aligned}
+    P(x)(1+^{\beta_0 + \beta_1x}) &= e^{\beta_0 + \beta_1x}\\
+    \frac{P(x)}{\frac{1}{1 + e^{\beta_0 + \beta_1x}}} &= e^{\beta_0 + \beta_1x}\\
+    \frac{P(x)}{1 - \frac{e^{\beta_0 + \beta_1x}}{1+ e^{\beta_0 + \beta_1x}}} &= e^{\beta_0 + \beta_1x}\\
+    \frac{P(x)}{1 - P(x)} &= e^{\beta_0 + \beta_1x}\\
+\end{aligned} 
+$$ 
+
+## ISL Exercise 4.8.6 (10pts)
+Suppose we collect data for a group of students in a statistics class
+with variables $X_1$ = hours studied, $X_2$ = undergrad GPA, and $Y$ =
+receive an A. We fit a logistic regression and produce estimated
+coefficient, $\hat {\beta _0}$ = −6, $\hat {\beta _1}$ = 0.05, $\hat {\beta _2}$  
+= 1.
+__(a)__ Estimate the probability that a student who studies for 40 h and
+has an undergrad GPA of 3.5 gets an A in the class.
+
+**Answer:** The probability that a student who studies for 40 hours and has an 
+undergrad GPA of 3.5 gets an A in the class is 0.3775407.
+
+$$
+\begin{aligned}
+p(X) &= \frac{\exp(\hat\beta_0 + \hat\beta_1X_1 + 
+\hat\beta_2X_2)}{1 + \exp(\hat\beta_0 + \hat\beta_1X_1 + \hat\beta_2X_2)}\\
+ &= \frac{\exp(-6 + 0.05*40 + 1*3.5)}{1+\exp(-6 + 0.05*40 + 1*3.5)} \\
+ &= \frac{\exp(-0.5)}{1+\exp(-0.5)} \\
+ &= 0.3775407
+\end{aligned}
+$$
+
+__(b)__ How many hours would the student in part (a) need to study to
+have a 50 % chance of getting an A in the class?
+
+**Answer:** The student in part (a) would need to study for 50 hours to have a 
+50% chance of getting an A in the class.
+
+$$
+\begin{aligned}
+\log(\frac{p(X)}{1 - p(X)}) &= \hat\beta_0 + \hat\beta_1*X_1 + \hat\beta_2*X_2\\
+\log(\frac{0.5}{1 - 0.5}) &= -6 + 0.05*X_1 + 1*3.5\\
+X_1 &= 50 \ hours. 
+\end{aligned}
+$$
+
+## ISL Exercise 4.8.9 (10pts)
+
+This problem has to do with odds.
+
+__(a)__ On average, what fraction of people with an odds of 0.37 of defaulting 
+on their credit card payment will in fact default?
+
+**Answer:** On average, 0.270073 of people with an odds of 0.37 of defaulting on 
+their credit card payment will in fact default.
+
+$$
+\begin{aligned}
+odds &= \frac{p(X)}{1-p(X)}\\
+p(X) &= odds*(1-p(X)) = odds-odds*p(X) \\
+odds &= p(X) + odds*p(X) = (1 + odds) * p(X) \\
+p(X) &= \frac{odds}{1 + odds} \\
+&= \frac{0.37}{1+0.37} = 0.270073
+\end{aligned}
+$$
+
+__(b)__ Suppose that an individual has a 16 % chance of defaulting on credit 
+card payment. What are the odds that she will default?
+
+**Answer:** The odds that she will default is 0.1904762.
+
+$$
+\begin{aligned}
+odds &= \frac{p(X)}{1-p(X)}\\
+odds &= \frac{0.16}{1-0.16}=0.1904762
+\end{aligned}
+$$
+## ISL Exercise 4.8.13 (a)-(i) (50pts)
+
+This question should be answered using the **Weekly** data set, which
+is part of the **ISLR2** package. This data is similar in nature to the
+**Smarket** data from this chapter’s lab, except that it contains 1, 089
+weekly returns for 21 years, from the beginning of 1990 to the end of
+2010.
+
+__(a)__ Produce some numerical and graphical summaries of the **Weekly**
+data. Do there appear to be any patterns?
+
+**Answer:**
+
+```{r}
+#| eval = false
+# Load the ISLR2 package and the Weekly dataset
+install.packages("ISLR2")
+library(ISLR2)
+data(Weekly)
+```
+
+```{r}
+# Display the structure and summary of the dataset -- numerical summaries
+str(Weekly)
+summary(Weekly)
+```
+Looking at the summary statistics for the Weekly dataset, we can observe the 
+following patterns:
+
+**Return Trends:**
+
+The median values for Lag1 to Lag5 suggest that, on average, the percentage 
+return for the stock market has been relatively stable over the previous weeks, 
+with a slight positive skewness.
+
+The mean values for these lagged variables are close to zero, indicating that 
+there is no significant overall upward or downward trend in the percentage return.
+
+**Volume of Trading:**
+
+The trading volume (Volume) has a wide range, with the median being around 1.0. 
+This suggests that the volume of trading varies widely across different weeks.
+
+**Daily Returns:**
+
+The median value for the variable "Today" is positive, indicating that, on 
+average, the stock market tends to have a positive return on a weekly basis.
+
+**Direction:**
+
+The dataset contains more instances of "Up" (605 observations) than "Down" 
+(484 observations), suggesting a slight imbalance in the classes.
+
+```{r}
+# Correlation matrix
+cor(Weekly[, c("Year", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume")])
+```
+
+```{r}
+# Create a scatter plot matrix for numerical variables
+pairs(Weekly[, c("Year", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume")])
+```
+
+```{r}
+# Create a time series plot of the Weekly data
+plot(Weekly$Year, Weekly$Volume, type = "l", xlab = "Year", ylab = "Volume")
+```
+
+There is a strong positive correlation (0.84) between the "Year" and "Volume" 
+variables. This suggests that the trading volume tends to increase over the years.
+The line plot of the trading volume over the years also shows an increasing trend.
+
+The scatter plot matrix shows that there is no strong linear relationship between 
+the lagged returns (Lag1 to Lag5) and the trading volume. The correlation matrix 
+also confirms this observation, with correlation coefficients close to zero for 
+these variables.
+
+__(b)__ Use the full data set to perform a logistic regression with
+**Direction** as the response and the five lag variables plus **Volume**
+as predictors. Use the summary function to print the results. Do
+any of the predictors appear to be statistically significant? If so,
+which ones?
+
+**Answer:**
+
+```{r}
+# Fit logistic regression model
+model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly, family = "binomial")
+
+# Print the summary of the model
+summary(model)
+```
+Lag2 appears to be statistically significant. The p-value for Lag2 is less than 0.05.
+
+__(c)__ Compute the confusion matrix and overall fraction of correct
+predictions. Explain what the confusion matrix is telling you
+about the types of mistakes made by logistic regression.
+
+**Answer:**
+
+```{r}
+# Make predictions 
+predictions <- predict(model, type = "response")
+
+# Convert probabilities to predicted classes (Up or Down)
+predicted_classes <- ifelse(predictions > 0.5, "Up", "Down")
+
+# Create a confusion matrix
+conf_matrix <- table(
+  Actual = Weekly$Direction,
+  Predicted = predicted_classes
+  )
+
+# Print the confusion matrix
+print(conf_matrix)
+
+# Compute overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Overall Accuracy: (54 + 557) / (54 + 557 + 48 + 430) = ", accuracy, "\n")
+```
+Above is the confusion matrix for the logistic regression model. The overall 
+fraction of correct predictions is 0.5610652. 
+
+**False Positives (Type I Error):**
+
+Instances where the actual direction was "Down" (row 1), but the model predicted 
+"Up" (column 2). There are 430 occurrences of this. In the context of stock market 
+prediction, this means the model falsely predicted an "Up" movement when the actual 
+movement was "Down."
+
+**False Negatives (Type II Error):**
+
+Instances where the actual direction was "Up" (row 2), but the model predicted 
+"Down" (column 1). There are 48 occurrences of this. In the context of stock market 
+prediction, this means the model falsely predicted a "Down" movement when the actual 
+movement was "Up."
+
+These errors provide insights into the model's performance and where it tends to 
+make mistakes. In this case, the model seems to struggle more with predicting 
+"Down" movements when they are actually "Up" (false negatives) than with predicting 
+"Up" movements when they are actually "Down" (false positives).
+
+__(d)__ Now fit the logistic regression model using a training data period
+from 1990 to 2008, with **Lag2** as the only predictor. Compute the
+confusion matrix and the overall fraction of correct predictions
+for the held out data (that is, the data from 2009 and 2010).
+
+**Answer:**
+
+```{r}
+# Split the data into training (1990-2008) and testing (2009-2010) sets
+train_data <- subset(Weekly, Year >= 1990 & Year <= 2008)
+test_data <- subset(Weekly, Year >= 2009)
+
+# Fit logistic regression with Lag2 as the predictor
+model <- glm(Direction ~ Lag2, data = train_data, family = "binomial")
+
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+
+# Print confusion matrix
+print(conf_matrix)
+
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Overall Accuracy:", accuracy, "\n")
+```
+Above is the confusion matrix and the overall fraction of correct predictions
+for the held out data is 0.625.
+
+__(e)__ Repeat (d) using LDA.
+
+**Answer:**
+
+```{r}
+# Install and load the MASS package if not already installed
+install.packages("MASS")
+library(MASS)
+```
+
+```{r}
+# Fit LDA model
+lda_model <- lda(Direction ~ Lag2, data = train_data)
+```
+
+```{r}
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+predictions
+```
+
+```{r}
+# Convert predictions to class labels
+predicted_direction <- predictions$class
+
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+
+# Print confusion matrix
+print(conf_matrix)
+
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Overall Accuracy:", accuracy, "\n")
+```
+
+__(f)__ Repeat (d) using QDA.
+
+**Answer:**
+
+```{r}
+# Fit LDA model
+qda_model <- qda(Direction ~ Lag2, data = train_data)
+```
+
+```{r}
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+predictions
+```
+
+```{r}
+# Convert predictions to class labels
+predicted_direction <- predictions$class
+
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+
+# Print confusion matrix
+print(conf_matrix)
+
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Overall Accuracy:", accuracy, "\n")
+```
+
+__(g)__ Repeat (d) using KNN with K = 1.
+
+**Answer:**
+
+```{r}
+#| eval = false
+install.packages("class")
+library(class)
+```
+
+```{r}
+# Fit KNN model with k=1
+knn_model <- knn(
+  train = as.matrix(train_data$Lag2), 
+  test = as.matrix(test_data$Lag2),
+  cl = train_data$Direction, 
+  k = 1
+  )
+
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = knn_model)
+
+# Print confusion matrix
+print(conf_matrix)
+
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Overall Accuracy:", accuracy, "\n")
+```
+
+__(h)__ Repeat (d) using naive Bayes.
+
+**Answer:**
+
+```{r}
+#| eval = false
+install.packages("naivebayes")
+library(naivebayes)
+```
+
+
+```{r}
+# Fit Naive Bayes model
+nb_model <- naive_bayes(Direction ~ Lag2, data = train_data)
+
+# Make predictions on the test set
+nb_predictions <- predict(nb_model, newdata = test_data, type = "class")
+nb_predictions
+```
+
+```{r}
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = nb_predictions)
+
+# Print confusion matrix
+print(conf_matrix)
+
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Overall Accuracy:", accuracy, "\n")
+```
+
+__(i)__ Which of these methods appears to provide the best results on
+this data?
+
+**Answer:**
+
+Logistic regression and LDA appear to provide the best results on this data. 
+These two methods give the exact same confusion matrix. The overall accuracy for 
+both methods is 0.625.
+
+## Bonus question: ISL Exercise 4.8.13 Part (j) (30pts)
+
+Experiment with different combinations of predictors, including
+possible transformations and interactions, for each of the
+methods. Report the variables, method, and associated confusion
+matrix that appears to provide the best results on the held
+out data. Note that you should also experiment with values for
+K in the KNN classifier.
+
+**Answer:**
+
+```{r}
+
+```
+
+**Answer:**
+
+
+
+## Bonus question: ISL Exercise 4.8.4 (30pts)
+
+When the number of features p is large, there tends to be a deterioration
+in the performance of KNN and other local approaches that
+perform prediction using only observations that are near the test observation
+for which a prediction must be made. This phenomenon is
+known as the curse of dimensionality, and it ties into the fact that curse of dinon-
+parametric approaches often perform poorly when p is large. We mensionality
+will now investigate this curse.
+
+__(a)__ Suppose that we have a set of observations, each with measurements
+on p = 1 feature, X. We assume that X is uniformly
+(evenly) distributed on [0, 1]. Associated with each observation
+is a response value. Suppose that we wish to predict a test observation’s
+response using only observations that are within 10 % of
+the range of X closest to that test observation. For instance, in
+order to predict the response for a test observation with X = 0.6,
+we will use observations in the range [0.55, 0.65]. On average,
+what fraction of the available observations will we use to make
+the prediction?
+
+**Answer:**
+
+```{r}
+
+```
+
+__(b)__ Now suppose that we have a set of observations, each with
+measurements on p = 2 features, X1 and X2. We assume that
+(X1,X2) are uniformly distributed on [0, 1] × [0, 1]. We wish to
+predict a test observation’s response using only observations that
+are within 10 % of the range of X1 and within 10 % of the range
+of X2 closest to that test observation. For instance, in order to
+predict the response for a test observation with X1 = 0.6 and
+X2 = 0.35, we will use observations in the range [0.55, 0.65] for
+X1 and in the range [0.3, 0.4] for X2. On average, what fraction
+of the available observations will we use to make the prediction?
+
+**Answer:**
+
+```{r}
+
+```
+
+__(c)__ Now suppose that we have a set of observations on p = 100 features.
+Again the observations are uniformly distributed on each
+feature, and again each feature ranges in value from 0 to 1. We
+wish to predict a test observation’s response using observations
+within the 10 % of each feature’s range that is closest to that test
+observation. What fraction of the available observations will we
+use to make the prediction?
+
+**Answer:**
+
+```{r}
+
+```
+
+__(d)__ Using your answers to parts (a)–(c), argue that a drawback of
+KNN when p is large is that there are very few training observations
+“near” any given test observation.
+
+**Answer:**
+
+```{r}
+
+```
+
+__(e)__ Now suppose that we wish to make a prediction for a test observation
+by creating a p-dimensional hypercube centered around
+the test observation that contains, on average, 10 % of the training
+observations. For p = 1, 2, and 100, what is the length of each
+side of the hypercube? Comment on your answer.
+
+Note: A hypercube is a generalization of a cube to an arbitrary
+number of dimensions. When p = 1, a hypercube is simply a line
+segment, when p = 2 it is a square, and when p = 100 it is a
+100-dimensional cube.
+
+**Answer:**
+
+```{r}
+
+```
+
+
+
