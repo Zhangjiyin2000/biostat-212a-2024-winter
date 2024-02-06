@@ -121,7 +121,7 @@ data. Do there appear to be any patterns?
 **Answer:**
 
 ```{r}
-#| eval = false
+#| eval = true
 # Load the ISLR2 package and the Weekly dataset
 install.packages("ISLR2")
 library(ISLR2)
@@ -129,6 +129,7 @@ data(Weekly)
 ```
 
 ```{r}
+#| eval = true
 # Display the structure and summary of the dataset -- numerical summaries
 str(Weekly)
 summary(Weekly)
@@ -161,11 +162,13 @@ The dataset contains more instances of "Up" (605 observations) than "Down"
 (484 observations), suggesting a slight imbalance in the classes.
 
 ```{r}
+#| eval = true
 # Correlation matrix
 cor(Weekly[, c("Year", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume")])
 ```
 
 ```{r}
+#| eval = true
 # Create a scatter plot matrix for numerical variables
 pairs(Weekly[, c("Year", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume")])
 ```
@@ -193,6 +196,7 @@ which ones?
 **Answer:**
 
 ```{r}
+#| eval = true
 # Fit logistic regression model
 model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly, family = "binomial")
 
@@ -208,6 +212,7 @@ about the types of mistakes made by logistic regression.
 **Answer:**
 
 ```{r}
+#| eval = true
 # Make predictions 
 predictions <- predict(model, type = "response")
 
@@ -257,6 +262,7 @@ for the held out data (that is, the data from 2009 and 2010).
 **Answer:**
 
 ```{r}
+#| eval = true
 # Split the data into training (1990-2008) and testing (2009-2010) sets
 train_data <- subset(Weekly, Year >= 1990 & Year <= 2008)
 test_data <- subset(Weekly, Year >= 2009)
@@ -288,23 +294,26 @@ __(e)__ Repeat (d) using LDA.
 **Answer:**
 
 ```{r}
+#| eval = true
 # Install and load the MASS package if not already installed
 install.packages("MASS")
 library(MASS)
 ```
 
 ```{r}
+#| eval = true
 # Fit LDA model
 lda_model <- lda(Direction ~ Lag2, data = train_data)
 ```
 
 ```{r}
+#| eval = true
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
-predictions
 ```
 
 ```{r}
+#| eval = true
 # Convert predictions to class labels
 predicted_direction <- predictions$class
 
@@ -324,17 +333,20 @@ __(f)__ Repeat (d) using QDA.
 **Answer:**
 
 ```{r}
+#| eval = true
 # Fit LDA model
 qda_model <- qda(Direction ~ Lag2, data = train_data)
 ```
 
 ```{r}
+#| eval = true
 # Make predictions on the test set
 predictions <- predict(qda_model, newdata = test_data)
 predictions
 ```
 
 ```{r}
+#| eval = true
 # Convert predictions to class labels
 predicted_direction <- predictions$class
 
@@ -354,7 +366,7 @@ __(g)__ Repeat (d) using KNN with K = 1.
 **Answer:**
 
 ```{r}
-#| eval = false
+#| eval = true
 install.packages("class")
 library(class)
 ```
@@ -384,22 +396,23 @@ __(h)__ Repeat (d) using naive Bayes.
 **Answer:**
 
 ```{r}
-#| eval = false
+#| eval = true
 install.packages("naivebayes")
 library(naivebayes)
 ```
 
 
 ```{r}
+#| eval = true
 # Fit Naive Bayes model
 nb_model <- naive_bayes(Direction ~ Lag2, data = train_data)
 
 # Make predictions on the test set
 nb_predictions <- predict(nb_model, newdata = test_data, type = "class")
-nb_predictions
 ```
 
 ```{r}
+#| eval = true
 # Create a confusion matrix
 conf_matrix <- table(Actual = test_data$Direction, Predicted = nb_predictions)
 
@@ -418,7 +431,7 @@ this data?
 
 Logistic regression and LDA appear to provide the best results on this data. 
 These two methods give the exact same confusion matrix. The overall accuracy for 
-both methods is 0.625.
+both methods is 0.625, which is highest among other methods.
 
 ## Bonus question: ISL Exercise 4.8.13 Part (j) (30pts)
 
@@ -431,12 +444,1581 @@ K in the KNN classifier.
 
 **Answer:**
 
+Below experiment with different combinations of predictors. Since lag2 is the 
+only statistically significant predictor, now first I will use combination of 
+lag1 and lag2, lag3 and lag2, lag4 and lag2, lag5 and lag2 to see if there are
+interactions between them using Logistic Regression model.
+
+
+__(1)__ Logistic Regression model:
+
+**2 predictors**
+
 ```{r}
+#| eval = true
+for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
+  formula_str <- paste("Direction ~ Lag2 +", lag)
+  formula_obj <- as.formula(formula_str)
+  # Fit logistic regression with Lag2 and another lag as the predictors
+  model <- glm(formula_obj, data = train_data, family = "binomial")
+  # Make predictions on the test set
+  predictions <- predict(model, newdata = test_data, type = "response")
+  # Convert probabilities to class predictions (Up or Down)
+  predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+  # Create a confusion matrix
+  conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+  # Print confusion matrix
+  print(conf_matrix)
+  # Calculate overall fraction of correct predictions
+  accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+  cat("Interaction of Lag2 and",lag,"'s Overall Accuracy:", accuracy, "\n")
+}
+
+```
+Compared with the overall fraction of correct predictions with Lag2 only (0.625), 
+the interaction of Lag2 and Lag3's overall accuracy is 0.625 and the interaction 
+of Lag2 and Lag4's overall accuracy is 0.625. Therefore, there is no interaction 
+between Lag2 and Lag3, and Lag2 and Lag4. While the interaction of Lag2 and 
+Lag1's overall accuracy is 0.5769231. The interaction of Lag2 and Lag5's overall 
+accuracy is 0.6057692. The interaction of Lag2 and Volume's overall accuracy is 
+0.5384615. Therefore, there is negative interaction between Lag2 and Lag1, Lag2 
+and Lag5, and Lag2 and Volume.
+
+**3 predictors**
+
+Lag2, Lag1 and Lag3:
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag3, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
 
 ```
 
-**Answer:**
+Lag2, Lag1, Lag4:
 
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag3 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+Even though there is no interaction between Lag2 and Lag3, and Lag2 and Lag4, 
+there is negative interaction between Lag2, Lag3 and Lag4 because the overall
+accuracy is 0.6153846 < 0.625.
+
+Lag2, Lag3, Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag3 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag3, Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag3 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag4, Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag4, Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Based on 3 predictor-combinations, there is negative interaction between Lag2 
+and two other predictors.
+
+**4 predictors:**
+
+Lag2, Lag1, Lag3 and Lag4:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag3 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag3 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag3 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag1 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+There is no interaction of Lag2, Lag3, Lag4 and Lag5 because the overall accuracy 
+is 0.625 again.
+
+Lag2, Lag3, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+**5 predictors:**
+
+Lag2 + Lag1 + Lag3 + Lag4 + Lag5
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag3 + Lag4 + Volume
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag1 + Lag2 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag3 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+model <- glm(Direction ~ Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(model, newdata = test_data, type = "response")
+# Convert probabilities to class predictions (Up or Down)
+predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+In all, there is no combination of predictors that provides better results than
+only Lag2 as the predictor using Logistic Regression model.
+
+__(2)__ LDA model:
+
+**2 predictors**
+
+```{r}
+#| eval = true
+for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
+  formula_str <- paste("Direction ~ Lag2 +", lag)
+  formula_obj <- as.formula(formula_str)
+  # Fit LDA model
+  lda_model <- lda(formula_obj, data = train_data)
+  # Make predictions on the test set
+  predictions <- predict(lda_model, newdata = test_data)
+  # Convert predictions to class labels
+  predicted_direction <- predictions$class
+  # Create a confusion matrix
+  conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+  # Print confusion matrix
+  print(conf_matrix)
+  # Calculate overall fraction of correct predictions
+  accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+  cat("Interaction of Lag2 and",lag,"'s Overall Accuracy:", accuracy, "\n")
+}
+
+```
+Compared with the overall fraction of correct predictions with Lag2 only (0.625), 
+the interaction of Lag2 and Lag3's overall accuracy is 0.625 and the interaction 
+of Lag2 and Lag4's overall accuracy is 0.625. Therefore, there is no interaction 
+between Lag2 and Lag3, and Lag2 and Lag4. While the interaction of Lag2 and 
+Lag1's overall accuracy is 0.5769231. The interaction of Lag2 and Lag5's overall 
+accuracy is 0.6057692. The interaction of Lag2 and Volume's overall accuracy is 
+0.5384615. Therefore, there is negative interaction between Lag2 and Lag1, Lag2 
+and Lag5, and Lag2 and Volume.
+
+**3 predictors**
+
+Lag2, Lag1 and Lag3:
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag4:
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+Even though there is no interaction between Lag2 and Lag3, and Lag2 and Lag4, 
+there is negative interaction between Lag2, Lag3 and Lag4 because the overall
+accuracy is 0.6153846 < 0.625.
+
+Lag2, Lag3, Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag3, Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag3 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag4, Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag4, Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Based on 3 predictor-combinations, there is negative interaction between Lag2 
+and two other predictors.
+
+**4 predictors:**
+
+Lag2, Lag1, Lag3 and Lag4:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+There is no interaction of Lag2, Lag3, Lag4 and Lag5 because the overall accuracy 
+is 0.625 again.
+
+Lag2, Lag3, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+**5 predictors:**
+
+Lag2 + Lag1 + Lag3 + Lag4 + Lag5
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag3 + Lag4 + Volume
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag1 + Lag2 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag3 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit logistic regression with Lag2 and another lag as the predictors
+lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(lda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+In all, there is no combination of predictors that provides better results than
+only Lag2 as the predictor using LDA model.
+
+__(3)__ QDA model:
+
+**2 predictors**
+
+```{r}
+#| eval = true
+for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
+  formula_str <- paste("Direction ~ Lag2 +", lag)
+  formula_obj <- as.formula(formula_str)
+  # Fit QDA model
+  qda_model <- qda(formula_obj, data = train_data)
+  # Make predictions on the test set
+  predictions <- predict(lda_model, newdata = test_data)
+  # Convert predictions to class labels
+  predicted_direction <- predictions$class
+  # Create a confusion matrix
+  conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+  # Print confusion matrix
+  print(conf_matrix)
+  # Calculate overall fraction of correct predictions
+  accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+  cat("Interaction of Lag2 and",lag,"'s Overall Accuracy:", accuracy, "\n")
+}
+
+```
+Compared with the overall fraction of correct predictions with Lag2 only (0.625), 
+there is negative interaction between Lag2 and any other variable.
+
+**3 predictors**
+
+Lag2, Lag1 and Lag3:
+
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag4:
+
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag5:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Volume:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag5:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag3, Volume:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag3 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag4, Lag5:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag4, Volume:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Based on 3 predictor-combinations, there is negative interaction between Lag2 
+and two other predictors.
+
+**4 predictors:**
+
+Lag2, Lag1, Lag3 and Lag4:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3 + Lag4, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Lag5:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Volume:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+There is no interaction of Lag2, Lag3, Lag4 and Lag5 because the overall accuracy 
+is 0.625 again.
+
+Lag2, Lag3, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit qdan with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+**5 predictors:**
+
+Lag2 + Lag1 + Lag3 + Lag4 + Lag5
+
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag3 + Lag4 + Volume
+
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag1 + Lag2 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag3 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit qda with Lag2 and another lag as the predictors
+qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
+# Make predictions on the test set
+predictions <- predict(qda_model, newdata = test_data)
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions$class)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+In all, there is no combination of predictors that provides better results than
+only Lag2 as the predictor using LDA model.
+
+__(4)__ Naive Bayes model:
+
+**2 predictors**
+
+```{r}
+#| eval = true
+for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
+  formula_str <- paste("Direction ~ Lag2 +", lag)
+  formula_obj <- as.formula(formula_str)
+  # Fit Naive Bayes model
+  nb_model <- naive_bayes(formula_obj, data = train_data)
+  # Make predictions on the test set
+  predictions <- predict(nb_model, newdata = test_data, type = "class")
+  # Create a confusion matrix
+  conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+  # Print confusion matrix
+  print(conf_matrix)
+  # Calculate overall fraction of correct predictions
+  accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+  cat("Interaction of Lag2 and",lag,"'s Overall Accuracy:", accuracy, "\n")
+}
+
+```
+
+**3 predictors**
+
+Lag2, Lag1 and Lag3:
+
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag4:
+
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag1, Lag5:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Volume:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag5:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag3, Volume:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag4, Lag5:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag4, Volume:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Based on 3 predictor-combinations, there is negative interaction between Lag2 
+and two other predictors.
+
+**4 predictors:**
+
+Lag2, Lag1, Lag3 and Lag4:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Lag5:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag3 and Volume:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+Lag2, Lag1, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+Lag2, Lag3, Lag4 and Lag5:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+
+```
+There is no interaction of Lag2, Lag3, Lag4 and Lag5 because the overall accuracy 
+is 0.625 again.
+
+Lag2, Lag3, Lag4 and Volume:
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+
+```
+
+**5 predictors:**
+
+Lag2 + Lag1 + Lag3 + Lag4 + Lag5
+
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag3 + Lag4 + Volume
+
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag1 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+Lag2 + Lag3 + Lag4 + Lag5 + Volume
+
+```{r}
+#| eval = true
+# Fit Naive Bayes model
+nb_model <- naive_bayes(formula_obj, data = train_data)
+# Make predictions on the test set
+predictions <- predict(nb_model, newdata = test_data, type = "class")
+# Create a confusion matrix
+conf_matrix <- table(Actual = test_data$Direction, Predicted = predictions)
+# Print confusion matrix
+print(conf_matrix)
+# Calculate overall fraction of correct predictions
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Interaction of Lag2, Lag3, Lag4, Lag5 and Volume's Overall Accuracy:", accuracy, "\n")
+```
+In all, there is no combination of predictors that provides better results than
+only Lag2 as the predictor using Naive Bayes model.
+
+__(5)__ KNN model:
+
+Below I experiment with values for K in the KNN classifier:
+
+```{r}
+#| eval = true
+# Fit KNN model with k from 1 to 100
+for (k in 1:100) {
+  knn_model <- knn(
+    train = as.matrix(train_data$Lag2), 
+    test = as.matrix(test_data$Lag2),
+    cl = train_data$Direction, 
+    k = k
+    )
+  # Create a confusion matrix
+  conf_matrix <- table(Actual = test_data$Direction, Predicted = knn_model)
+  # Print confusion matrix
+  print(conf_matrix)
+  # Calculate overall fraction of correct predictions
+  accuracy[k] <- sum(diag(conf_matrix)) / sum(conf_matrix)
+  cat(k, "NN's Overall Accuracy:", accuracy[k], "\n")
+}
+max(accuracy)
+which.max(accuracy)
+```
+Based on the for loop, I find that when k = 47, the KNN classifier provides the
+best results on the held out data, with an overall accuracy of 0.6153846.
 
 
 ## Bonus question: ISL Exercise 4.8.4 (30pts)
