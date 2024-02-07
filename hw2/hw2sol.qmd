@@ -2044,9 +2044,33 @@ the prediction?
 
 **Answer:**
 
-```{r}
+If $x∈[0.05,0.95]$, then the observations we will use are in the interval 
+$[x−0.05,x+0.05]$, which represents a length of 0.1, which represents a fraction 
+of 10%.
 
-```
+If x<0.05, then we will use observations in the interval $[0, x+0.05]$, which 
+represents a fraction of $(100x+5)%$.
+
+If x>0.95, we will use observations in the interval $[x-0.05, 1]$, which 
+represents a fraction of $(105−100x)%$.
+
+To compute the average fraction we will use to make the prediction we have to
+calculate the integrate of the fraction of the available observations over the
+range of X as follows:
+$$
+\begin{aligned}
+\int_{0}^{0.05} (100x+5)dx + \int_{0.05}^{0.95} 10dx + 
+\int_{0.95}^{1} (105−100x)dx 
+&= \left(50x^2+5x\right)|_{0}^{0.05} + \left(10x\right)|_{0.05}^{0.95} + 
+\left(105x−50x^2\right)|_{0.95}^{1} \\
+&= 50*(0.05)^2+5*(0.05) + 10*(0.95−0.05) + 105*1−50*1^2−
+\left(105*0.95-50*0.95^2\right) \\
+&= 0.25+0.5+9.5+105−50−105+47.5 \\
+&= 9.75
+\end{aligned}
+$$
+Therefore, On average, we will use 9.75% of the available observations to make
+the prediction.
 
 __(b)__ Now suppose that we have a set of observations, each with
 measurements on p = 2 features, X1 and X2. We assume that
@@ -2061,9 +2085,14 @@ of the available observations will we use to make the prediction?
 
 **Answer:**
 
-```{r}
-
-```
+If we assume X1 and X2 to be independent, the fraction of available observations 
+we will use to make the prediction is the product of the fraction of available
+observations for X1 and X2, which is
+$$
+9.75\%×9.75\% = 0.950625\%
+$$
+Therefore, the fraction of available observations we will use to make the
+prediction is 0.950625%.
 
 __(c)__ Now suppose that we have a set of observations on p = 100 features.
 Again the observations are uniformly distributed on each
@@ -2075,9 +2104,14 @@ use to make the prediction?
 
 **Answer:**
 
-```{r}
-
-```
+Based on (a) and (b), we can conclude that the fraction of available 
+observations we will use to make the prediction is the product of the fraction
+of available observations for each feature, which is
+$$
+9.75 \% ^{100} \approx 0 \%
+$$
+Therefore, the fraction of available observations we will use to make the 
+prediction is approximately 0%.
 
 __(d)__ Using your answers to parts (a)–(c), argue that a drawback of
 KNN when p is large is that there are very few training observations
@@ -2085,10 +2119,15 @@ KNN when p is large is that there are very few training observations
 
 **Answer:**
 
-```{r}
-
-```
-
+Based on parts (a)-(c), we can conclued that the fraction of available 
+observations we will use to make the prediction is $(9.75%)^p$, where $p$ is the 
+number of features. So when p is infinitely large, the fraction of available
+observations we will use to make the prediction is 0. Therefore, there are very
+few training observations "near" any given test observation.
+$$
+0<9.75\%<1 \Rightarrow
+\lim_{p\rightarrow∞} (9.75\%)^p=0.
+$$
 __(e)__ Now suppose that we wish to make a prediction for a test observation
 by creating a p-dimensional hypercube centered around
 the test observation that contains, on average, 10 % of the training
@@ -2102,9 +2141,15 @@ segment, when p = 2 it is a square, and when p = 100 it is a
 
 **Answer:**
 
-```{r}
+For p=1, the center of a line segment is its midpoint. Think of observations 
+queuing evenly on ths line segment and therefore we have length of the line 
+segment equal to $0.1$.
 
-```
+For p=2, the center of the square is the point where the two diagonals of the 
+square intersect, and these two diagonals are perpendicular to each other. 
+Consequently, we have a length equal to $0.1^{1/2}$.
 
-
+For p=100, the center of the 100-dimensional cube is the point where the
+diagonals of the cube intersect, and these diagonals are perpendicular to each
+other. Consequently, we have a length equal to $0.1^{1/100}$.
 
