@@ -33,12 +33,15 @@ model are equivalent.
 
 $$ 
 \begin{aligned}
-    P(x)(1+^{\beta_0 + \beta_1x}) &= e^{\beta_0 + \beta_1x}\\
-    \frac{P(x)}{\frac{1}{1 + e^{\beta_0 + \beta_1x}}} &= e^{\beta_0 + \beta_1x}\\
-    \frac{P(x)}{1 - \frac{e^{\beta_0 + \beta_1x}}{1+ e^{\beta_0 + \beta_1x}}} &= e^{\beta_0 + \beta_1x}\\
-    \frac{P(x)}{1 - P(x)} &= e^{\beta_0 + \beta_1x}\\
+    P(x)(1+^{\beta_0 + \beta_1x}) &= e^{\beta_0 + \beta_1x} \Rightarrow \\
+    (1+^{\beta_0 + \beta_1x} &= \frac {1} {\frac{1}{1 + e^{\beta_0 + \beta_1x}}}) \\
+    \frac{P(x)}{\frac{1}{1 + e^{\beta_0 + \beta_1x}}} &= e^{\beta_0 + \beta_1x} \Rightarrow\\
+    \frac{P(x)}{1 - \frac{e^{\beta_0 + \beta_1x}}{1+ e^{\beta_0 + \beta_1x}}} &= e^{\beta_0 + \beta_1x} \Rightarrow\\
+    \frac{P(x)}{1 - P(x)} &= e^{\beta_0 + \beta_1x} \\
 \end{aligned} 
 $$ 
+Therefore, the logistic function representation and logit representation for the 
+logistic regression model are equivalent.
 
 ## ISL Exercise 4.8.6 (10pts)
 Suppose we collect data for a group of students in a statistics class
@@ -70,9 +73,10 @@ have a 50 % chance of getting an A in the class?
 
 $$
 \begin{aligned}
-\log(\frac{p(X)}{1 - p(X)}) &= \hat\beta_0 + \hat\beta_1*X_1 + \hat\beta_2*X_2\\
-\log(\frac{0.5}{1 - 0.5}) &= -6 + 0.05*X_1 + 1*3.5\\
-X_1 &= 50 \ hours. 
+\log(\frac{p(X)}{1 - p(X)}) = \hat\beta_0 + \hat\beta_0*X_1 + \hat\beta_2*X_2\\
+Assign \ the \ values \ of \ p(X), \ X_1, \ X_2, \ \hat\beta_0, \ \hat\beta_0, \ \hat\beta_2 \ to \ the \ equation,\\
+\log(\frac{0.5}{1 - 0.5}) = -6 + 0.05*X_1 + 1*3.5\\
+Solve \ the \ equation: \ X_1 = 50 \ hours. 
 \end{aligned}
 $$
 
@@ -121,17 +125,16 @@ data. Do there appear to be any patterns?
 **Answer:**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Load the ISLR2 package and the Weekly dataset
-install.packages("ISLR2")
+# install.packages("ISLR2")
 library(ISLR2)
 data(Weekly)
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Display the structure and summary of the dataset -- numerical summaries
-str(Weekly)
 summary(Weekly)
 ```
 Looking at the summary statistics for the Weekly dataset, we can observe the 
@@ -139,12 +142,9 @@ following patterns:
 
 **Return Trends:**
 
-The median values for Lag1 to Lag5 suggest that, on average, the percentage 
-return for the stock market has been relatively stable over the previous weeks, 
-with a slight positive skewness.
-
-The mean values for these lagged variables are close to zero, indicating that 
-there is no significant overall upward or downward trend in the percentage return.
+The median and mean values for these lagged variables are close to zero and 
+almost identical, indicating that there is no significant overall upward or 
+downward trend in the percentage return.
 
 **Volume of Trading:**
 
@@ -162,13 +162,13 @@ The dataset contains more instances of "Up" (605 observations) than "Down"
 (484 observations), suggesting a slight imbalance in the classes.
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Correlation matrix
 cor(Weekly[, c("Year", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume")])
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Create a scatter plot matrix for numerical variables
 pairs(Weekly[, c("Year", "Lag1", "Lag2", "Lag3", "Lag4", "Lag5", "Volume")])
 ```
@@ -196,14 +196,19 @@ which ones?
 **Answer:**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression model
-model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly, family = "binomial")
+model <- glm(
+  Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, 
+  data = Weekly, 
+  family = "binomial"
+  )
 
 # Print the summary of the model
 summary(model)
 ```
-Lag2 appears to be statistically significant. The p-value for Lag2 is less than 0.05.
+Lag2 appears to be statistically significant. The p-value for Lag2 is less than 
+0.05.
 
 __(c)__ Compute the confusion matrix and overall fraction of correct
 predictions. Explain what the confusion matrix is telling you
@@ -212,7 +217,7 @@ about the types of mistakes made by logistic regression.
 **Answer:**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Make predictions 
 predictions <- predict(model, type = "response")
 
@@ -238,21 +243,21 @@ fraction of correct predictions is 0.5610652.
 **False Positives (Type I Error):**
 
 Instances where the actual direction was "Down" (row 1), but the model predicted 
-"Up" (column 2). There are 430 occurrences of this. In the context of stock market 
-prediction, this means the model falsely predicted an "Up" movement when the actual 
-movement was "Down."
+"Up" (column 2). There are 430 occurrences of this. In the context of stock 
+market prediction, this means the model falsely predicted an "Up" movement when 
+the actual movement was "Down."
 
 **False Negatives (Type II Error):**
 
 Instances where the actual direction was "Up" (row 2), but the model predicted 
-"Down" (column 1). There are 48 occurrences of this. In the context of stock market 
-prediction, this means the model falsely predicted a "Down" movement when the actual 
-movement was "Up."
+"Down" (column 1). There are 48 occurrences of this. In the context of stock 
+market prediction, this means the model falsely predicted a "Down" movement when 
+the actual movement was "Up."
 
 These errors provide insights into the model's performance and where it tends to 
 make mistakes. In this case, the model seems to struggle more with predicting 
-"Down" movements when they are actually "Up" (false negatives) than with predicting 
-"Up" movements when they are actually "Down" (false positives).
+"Down" movements when they are predicted to be "up" (false negatives) than with 
+predicting "Up" movements when they are predicted to be "Down" (false positives).
 
 __(d)__ Now fit the logistic regression model using a training data period
 from 1990 to 2008, with **Lag2** as the only predictor. Compute the
@@ -261,18 +266,26 @@ for the held out data (that is, the data from 2009 and 2010).
 
 **Answer:**
 
+Split the data into training (1990-2008) and testing (2009-2010) sets:
+
 ```{r}
-#| eval = true
-# Split the data into training (1990-2008) and testing (2009-2010) sets
+#| eval = TRUE
 train_data <- subset(Weekly, Year >= 1990 & Year <= 2008)
 test_data <- subset(Weekly, Year >= 2009)
-
-# Fit logistic regression with Lag2 as the predictor
+```
+Fit logistic regression with Lag2 as the predictor:
+```{r}
+#| eval = TRUE
 model <- glm(Direction ~ Lag2, data = train_data, family = "binomial")
-
-# Make predictions on the test set
+```
+Make predictions on the test set:
+```{r}
+#| eval = TRUE
 predictions <- predict(model, newdata = test_data, type = "response")
-
+```
+Confusion matrix:
+```{r}
+#| eval = TRUE
 # Convert probabilities to class predictions (Up or Down)
 predicted_direction <- ifelse(predictions > 0.5, "Up", "Down")
 
@@ -294,26 +307,26 @@ __(e)__ Repeat (d) using LDA.
 **Answer:**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Install and load the MASS package if not already installed
-install.packages("MASS")
+# install.packages("MASS")
 library(MASS)
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit LDA model
 lda_model <- lda(Direction ~ Lag2, data = train_data)
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Convert predictions to class labels
 predicted_direction <- predictions$class
 
@@ -327,31 +340,35 @@ print(conf_matrix)
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Overall Accuracy:", accuracy, "\n")
 ```
+Above is the confusion matrix and the overall fraction of correct predictions
+for the held out data is 0.625.
 
 __(f)__ Repeat (d) using QDA.
 
 **Answer:**
 
 ```{r}
-#| eval = true
-# Fit LDA model
+#| eval = TRUE
+# Fit QDA model
 qda_model <- qda(Direction ~ Lag2, data = train_data)
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Make predictions on the test set
 predictions <- predict(qda_model, newdata = test_data)
-predictions
 ```
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Convert predictions to class labels
 predicted_direction <- predictions$class
 
 # Create a confusion matrix
-conf_matrix <- table(Actual = test_data$Direction, Predicted = predicted_direction)
+conf_matrix <- table(
+  Actual = test_data$Direction, 
+  Predicted = predicted_direction
+  )
 
 # Print confusion matrix
 print(conf_matrix)
@@ -360,14 +377,16 @@ print(conf_matrix)
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Overall Accuracy:", accuracy, "\n")
 ```
+Above is the confusion matrix and the overall fraction of correct predictions
+for the held out data is 0.5865385.
 
 __(g)__ Repeat (d) using KNN with K = 1.
 
 **Answer:**
 
 ```{r}
-#| eval = true
-install.packages("class")
+#| eval = TRUE
+# install.packages("class")
 library(class)
 ```
 
@@ -390,29 +409,28 @@ print(conf_matrix)
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Overall Accuracy:", accuracy, "\n")
 ```
+Above is the confusion matrix and the overall fraction of correct predictions
+for the held out data is 0.5096154.
 
 __(h)__ Repeat (d) using naive Bayes.
 
 **Answer:**
 
 ```{r}
-#| eval = true
-install.packages("naivebayes")
+#| eval = TRUE
+# install.packages("naivebayes")
 library(naivebayes)
 ```
 
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(Direction ~ Lag2, data = train_data)
 
 # Make predictions on the test set
 nb_predictions <- predict(nb_model, newdata = test_data, type = "class")
-```
 
-```{r}
-#| eval = true
 # Create a confusion matrix
 conf_matrix <- table(Actual = test_data$Direction, Predicted = nb_predictions)
 
@@ -423,6 +441,8 @@ print(conf_matrix)
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Overall Accuracy:", accuracy, "\n")
 ```
+Above is the confusion matrix and the overall fraction of correct predictions
+for the held out data is 0.5865385.
 
 __(i)__ Which of these methods appears to provide the best results on
 this data?
@@ -446,16 +466,22 @@ K in the KNN classifier.
 
 Below experiment with different combinations of predictors. Since lag2 is the 
 only statistically significant predictor, now first I will use combination of 
-lag1 and lag2, lag3 and lag2, lag4 and lag2, lag5 and lag2 to see if there are
-interactions between them using Logistic Regression model.
+lag1 and lag2, lag3 and lag2, lag4 and lag2, lag5 and lag2, volume and lag2 to 
+see if there are interactions between them. 
 
+And keeping lag2 always as one of the predictors, adding 2 more variables to see 
+if there are interactions between them. 
+
+Then, I will add 3 more variables. 
+
+Finally, I will add 4 more variables. 
 
 __(1)__ Logistic Regression model:
 
 **2 predictors**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
   formula_str <- paste("Direction ~ Lag2 +", lag)
   formula_obj <- as.formula(formula_str)
@@ -489,7 +515,7 @@ and Lag5, and Lag2 and Volume.
 Lag2, Lag1 and Lag3:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag3, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -509,7 +535,7 @@ cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
 Lag2, Lag1, Lag4:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -528,7 +554,7 @@ cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag1, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -546,7 +572,7 @@ cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag1, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -565,7 +591,7 @@ cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag3, Lag4:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag3 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -587,7 +613,7 @@ accuracy is 0.6153846 < 0.625.
 
 Lag2, Lag3, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag3 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -605,7 +631,7 @@ cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag3, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag3 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -623,7 +649,7 @@ cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag4, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -642,7 +668,7 @@ cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag4, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -665,7 +691,7 @@ and two other predictors.
 
 Lag2, Lag1, Lag3 and Lag4:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag3 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -683,7 +709,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag3 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -701,7 +727,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag3 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -719,7 +745,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, 
 ```
 Lag2, Lag1, Lag4 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -737,7 +763,7 @@ cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag4 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag1 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -756,7 +782,7 @@ cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, 
 
 Lag2, Lag3, Lag4 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -777,7 +803,7 @@ is 0.625 again.
 
 Lag2, Lag3, Lag4 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -799,7 +825,7 @@ cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, 
 Lag2 + Lag1 + Lag3 + Lag4 + Lag5
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -817,7 +843,7 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accura
 Lag2 + Lag1 + Lag3 + Lag4 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -835,7 +861,7 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accu
 Lag2 + Lag1 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag1 + Lag2 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -853,7 +879,7 @@ cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accu
 Lag2 + Lag3 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit logistic regression with Lag2 and another lag as the predictors
 model <- glm(Direction ~ Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -876,7 +902,7 @@ __(2)__ LDA model:
 **2 predictors**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
   formula_str <- paste("Direction ~ Lag2 +", lag)
   formula_obj <- as.formula(formula_str)
@@ -910,8 +936,8 @@ and Lag5, and Lag2 and Volume.
 Lag2, Lag1 and Lag3:
 
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDAn with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -928,8 +954,8 @@ cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
 Lag2, Lag1, Lag4:
 
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -945,8 +971,8 @@ cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag1, Lag5:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -961,8 +987,8 @@ cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag1, Volume:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -978,8 +1004,8 @@ cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag3, Lag4:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -992,14 +1018,11 @@ accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 ```
-Even though there is no interaction between Lag2 and Lag3, and Lag2 and Lag4, 
-there is negative interaction between Lag2, Lag3 and Lag4 because the overall
-accuracy is 0.6153846 < 0.625.
 
 Lag2, Lag3, Lag5:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1014,8 +1037,8 @@ cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag3, Volume:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag3 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1030,8 +1053,8 @@ cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag4, Lag5:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1047,8 +1070,8 @@ cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag4, Volume:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1068,8 +1091,8 @@ and two other predictors.
 
 Lag2, Lag1, Lag3 and Lag4:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1084,8 +1107,8 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Lag5:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1100,8 +1123,8 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Volume:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag3 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1116,8 +1139,8 @@ cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, 
 ```
 Lag2, Lag1, Lag4 and Lag5:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1132,8 +1155,8 @@ cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag4 and Volume:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag1 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1149,8 +1172,8 @@ cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, 
 
 Lag2, Lag3, Lag4 and Lag5:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1168,8 +1191,8 @@ is 0.625 again.
 
 Lag2, Lag3, Lag4 and Volume:
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1188,8 +1211,8 @@ cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, 
 Lag2 + Lag1 + Lag3 + Lag4 + Lag5
 
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1204,8 +1227,8 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accura
 Lag2 + Lag1 + Lag3 + Lag4 + Volume
 
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1220,8 +1243,8 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accu
 Lag2 + Lag1 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag1 + Lag2 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1236,8 +1259,8 @@ cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accu
 Lag2 + Lag3 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
-# Fit logistic regression with Lag2 and another lag as the predictors
+#| eval = TRUE
+# Fit LDA with Lag2 and another lag as the predictors
 lda_model <- lda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
 predictions <- predict(lda_model, newdata = test_data)
@@ -1257,7 +1280,7 @@ __(3)__ QDA model:
 **2 predictors**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
   formula_str <- paste("Direction ~ Lag2 +", lag)
   formula_obj <- as.formula(formula_str)
@@ -1285,7 +1308,7 @@ there is negative interaction between Lag2 and any other variable.
 Lag2, Lag1 and Lag3:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1303,7 +1326,7 @@ cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
 Lag2, Lag1, Lag4:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1320,7 +1343,7 @@ cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag1, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1336,7 +1359,7 @@ cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag1, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1353,7 +1376,7 @@ cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag3, Lag4:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1370,7 +1393,7 @@ cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag3, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1386,7 +1409,7 @@ cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag3, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag3 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1402,7 +1425,7 @@ cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag4, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1419,7 +1442,7 @@ cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag4, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1440,7 +1463,7 @@ and two other predictors.
 
 Lag2, Lag1, Lag3 and Lag4:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3 + Lag4, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1456,7 +1479,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1472,7 +1495,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag3 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1488,7 +1511,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, 
 ```
 Lag2, Lag1, Lag4 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1504,7 +1527,7 @@ cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag4 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag1 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1521,7 +1544,7 @@ cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, 
 
 Lag2, Lag3, Lag4 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1540,7 +1563,7 @@ is 0.625 again.
 
 Lag2, Lag3, Lag4 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qdan with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1560,7 +1583,7 @@ cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, 
 Lag2 + Lag1 + Lag3 + Lag4 + Lag5
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1576,7 +1599,7 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accura
 Lag2 + Lag1 + Lag3 + Lag4 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1592,7 +1615,7 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accu
 Lag2 + Lag1 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag1 + Lag2 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1608,7 +1631,7 @@ cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accu
 Lag2 + Lag3 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit qda with Lag2 and another lag as the predictors
 qda_model <- qda(Direction ~ Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = train_data, family = "binomial")
 # Make predictions on the test set
@@ -1629,7 +1652,7 @@ __(4)__ Naive Bayes model:
 **2 predictors**
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
   formula_str <- paste("Direction ~ Lag2 +", lag)
   formula_obj <- as.formula(formula_str)
@@ -1653,7 +1676,7 @@ for (lag in c("Lag1", "Lag3", "Lag4", "Lag5", "Volume")) {
 Lag2, Lag1 and Lag3:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1671,7 +1694,7 @@ cat("Interaction of Lag2, Lag1 and Lag3's Overall Accuracy:", accuracy, "\n")
 Lag2, Lag1, Lag4:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1688,7 +1711,7 @@ cat("Interaction of Lag2, Lag1 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag1, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1704,7 +1727,7 @@ cat("Interaction of Lag2, Lag1 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag1, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1721,7 +1744,7 @@ cat("Interaction of Lag2, Lag1 and Volume's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag3, Lag4:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1738,7 +1761,7 @@ cat("Interaction of Lag2, Lag3 and Lag4's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag3, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1754,7 +1777,7 @@ cat("Interaction of Lag2, Lag3 and Lag5's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag3, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1770,7 +1793,7 @@ cat("Interaction of Lag2, Lag3 and Volume's Overall Accuracy:", accuracy, "\n")
 ```
 Lag2, Lag4, Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1787,7 +1810,7 @@ cat("Interaction of Lag2, Lag4 and Lag5's Overall Accuracy:", accuracy, "\n")
 
 Lag2, Lag4, Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1808,7 +1831,7 @@ and two other predictors.
 
 Lag2, Lag1, Lag3 and Lag4:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1824,7 +1847,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag4's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1840,7 +1863,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag3 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1856,7 +1879,7 @@ cat("Interaction of Lag2, Lag1, Lag3 and Volume's Overall Accuracy:", accuracy, 
 ```
 Lag2, Lag1, Lag4 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1872,7 +1895,7 @@ cat("Interaction of Lag2, Lag1, Lag4 and Lag5's Overall Accuracy:", accuracy, "\
 ```
 Lag2, Lag1, Lag4 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1889,7 +1912,7 @@ cat("Interaction of Lag2, Lag1, Lag4 and Volume's Overall Accuracy:", accuracy, 
 
 Lag2, Lag3, Lag4 and Lag5:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1908,7 +1931,7 @@ is 0.625 again.
 
 Lag2, Lag3, Lag4 and Volume:
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1928,7 +1951,7 @@ cat("Interaction of Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accuracy, 
 Lag2 + Lag1 + Lag3 + Lag4 + Lag5
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1944,7 +1967,7 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Lag5's Overall Accuracy:", accura
 Lag2 + Lag1 + Lag3 + Lag4 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1960,7 +1983,7 @@ cat("Interaction of Lag1, Lag2, Lag3, Lag4 and Volume's Overall Accuracy:", accu
 Lag2 + Lag1 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1976,7 +1999,7 @@ cat("Interaction of Lag1, Lag2, Lag4, Lag5 and Volume's Overall Accuracy:", accu
 Lag2 + Lag3 + Lag4 + Lag5 + Volume
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit Naive Bayes model
 nb_model <- naive_bayes(formula_obj, data = train_data)
 # Make predictions on the test set
@@ -1997,7 +2020,7 @@ __(5)__ KNN model:
 Below I experiment with values for K in the KNN classifier:
 
 ```{r}
-#| eval = true
+#| eval = TRUE
 # Fit KNN model with k from 1 to 100
 for (k in 1:100) {
   knn_model <- knn(
