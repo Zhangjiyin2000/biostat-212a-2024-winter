@@ -94,12 +94,24 @@ The bootstrap estimated standard error of $\hat\mu$ is very close to the
 estimate found in (b).
 
 __(d)__ Based on your bootstrap estimate from (c), provide a 95 % confidence
-interval for the mean of medv. Compare it to the results
-obtained using t.test(Boston$medv).
-Hint: You can approximate a 95 % confidence interval using the
-formula [ˆμ − 2SE(ˆμ), ˆμ + 2SE(ˆμ)].
+interval for the mean of medv. Compare it to the results obtained using 
+t.test(Boston$medv).
+Hint: You can approximate a 95 % confidence interval using the formula 
+$[\hat\mu - 2SE(\hat\mu), \hat\mu + 2SE(\hat\mu)]$.
 ### Answer:
+```{r}
+# Calculate the 95% confidence interval using the formula
+ci_lower <- mu_hat - 2 * standard_error
+ci_upper <- mu_hat + 2 * standard_error
+cat("The 95% confidence interval for the mean of medv is: (", ci_lower, ",", ci_upper, ")\n")
+```
 
+```{r}
+# Compare it to the results obtained using t.test(Boston$medv)
+t.test(Boston$medv)
+```
+The bootstrap confidence interval is very close to the one provided by the 
+`t.test()` function.
 
 __(e)__ Based on this data set, provide an estimate, ˆμmed, for the median
 value of medv in the population.
