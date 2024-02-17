@@ -62,7 +62,9 @@ number of observations.
 ### Answer:
 ```{r}
 se_mu_hat <- sd(Boston$medv) / sqrt(length(Boston$medv))
-cat("The estimate of the standard error of the population mean of medv is:", se_mu_hat, "\n")
+cat("The estimate of the standard error of the population mean of medv is:", 
+    se_mu_hat, 
+    "\n")
 ```
 
 __(c)__ Now estimate the standard error of $\hat\mu$ using the bootstrap. How
@@ -103,7 +105,11 @@ $[\hat\mu - 2SE(\hat\mu), \hat\mu + 2SE(\hat\mu)]$.
 # Calculate the 95% confidence interval using the formula
 ci_lower <- mu_hat - 2 * standard_error
 ci_upper <- mu_hat + 2 * standard_error
-cat("The 95% confidence interval for the mean of medv is: (", ci_lower, ",", ci_upper, ")\n")
+cat("The 95% confidence interval for the mean of medv is: (", 
+    ci_lower, 
+    ",", 
+    ci_upper, 
+    ")\n")
 ```
 
 ```{r}
@@ -113,10 +119,15 @@ t.test(Boston$medv)
 The bootstrap confidence interval is very close to the one provided by the 
 `t.test()` function.
 
-__(e)__ Based on this data set, provide an estimate, ˆμmed, for the median
-value of medv in the population.
+__(e)__ Based on this data set, provide an estimate, $\hat\mu_{med}$, for the 
+median value of `medv` in the population.
 ### Answer:
-
+```{r}
+mu_med_hat <- median(Boston$medv)
+cat("The estimate for the median value of medv in the population is:", 
+    mu_med_hat, 
+    "\n")
+```
 
 __(f)__ We now would like to estimate the standard error of ˆμmed. Unfortunately,
 there is no simple formula for computing the standard
