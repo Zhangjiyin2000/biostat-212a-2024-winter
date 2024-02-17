@@ -83,6 +83,10 @@ boot.fn <- function(data, index) {
     mu <- mean(data[index])
     return (mu)
 }
+boot(Boston$medv, boot.fn, 1000)
+```
+
+```{r}
 boot_stat = boot(Boston$medv, boot.fn, 1000)
 
 # Extract the standard error from the bootstrap result
@@ -129,12 +133,30 @@ cat("The estimate for the median value of medv in the population is:",
     "\n")
 ```
 
-__(f)__ We now would like to estimate the standard error of ˆμmed. Unfortunately,
-there is no simple formula for computing the standard
-error of the median. Instead, estimate the standard error of the
-median using the bootstrap. Comment on your findings.
+__(f)__ We now would like to estimate the standard error of $\hat\mu_{med}$. 
+Unfortunately, there is no simple formula for computing the standard error of 
+the median. Instead, estimate the standard error of the median using the 
+bootstrap. Comment on your findings.
 ### Answer:
+```{r}
+set.seed(1)
+boot.fn <- function(data, index) {
+    mu_med <- median(data[index])
+    return (mu_med)
+}
+boot(Boston$medv, boot.fn, 1000)
+```
 
+```{r}
+boot_stat = boot(Boston$medv, boot.fn, 1000)
+# Extract the standard error from the bootstrap result
+standard_error_med <- sd(boot_stat$t)
+# Print the standard error using cat
+cat("Standard Error:", standard_error, "\n")
+```
+We get an estimated median value of 21.2 which is equal to the value obtained in 
+(e), with a standard error of 0.4106622 which is relatively small compared to 
+median value.
 
 __(g)__ Based on this data set, provide an estimate for the tenth percentile
 of medv in Boston census tracts. Call this quantity ˆμ0.1.
