@@ -23,19 +23,23 @@ knitr:
 ---
 
 ## ISL Exercise 5.4.2 (10pts)
-Suppose that we use some statistical learning method to make a prediction
-for the response Y for a particular value of the predictor X.
-Carefully describe how we might estimate the standard deviation of
-our prediction.
+Suppose that we use some statistical learning method to make a prediction for 
+the response Y for a particular value of the predictor X. Carefully describe 
+how we might estimate the standard deviation of our prediction.
 
 ### Answer:
-We can estimate the standard deviation of our prediction by using the bootstrap method. We can obtain repeated random samples from the original data set without generating additional samples. To elucidate, we perform sampling with replacement B times and then find the corresponding estimates and the standard deviation of those B estimates by using the following equation:
+We can estimate the standard deviation of our prediction by using the bootstrap 
+method. We can obtain repeated random samples from the original data set without 
+generating additional samples. To elucidate, we perform sampling with replacement 
+B times and then find the corresponding estimates and the standard deviation of 
+those B estimates by using the following equation:
 $$
 SE_B(\hat\alpha) = \sqrt{\frac{1}{B-1} \sum_{r=1}^B (\hat\alpha^{*r} - \frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r'})^2}
 
 $$
-where $\hat\alpha^{*r}$ is the estimate of $\hat\alpha$ for the $r^{th}$ bootstrap 
-sample and $\frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r'}$ is the average of the B estimates.
+where $\hat\alpha^{*r}$ is the estimate of $\hat\alpha$ for the $r^{th}$ 
+bootstrap sample and $\frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r'}$ is the average 
+of the B estimates.
 
 ## ISL Exercise 5.4.9 (20pts)
 We will now consider the Boston housing data set, from the ISLR2 library.
@@ -52,8 +56,8 @@ cat("The population mean of medv is:", mu_hat, "\n")
 
 __(b)__ Provide an estimate of the standard error of $\hat\mu$. Interpret this
 result.
-Hint: We can compute the standard error of the sample mean by
-dividing the sample standard deviation by the square root of the
+Hint: We can compute the standard error of the sample mean by dividing the 
+sample standard deviation by the square root of the
 number of observations.
 ### Answer:
 ```{r}
@@ -61,10 +65,33 @@ se_mu_hat <- sd(Boston$medv) / sqrt(length(Boston$medv))
 cat("The estimate of the standard error of the population mean of medv is:", se_mu_hat, "\n")
 ```
 
-__(c)__ Now estimate the standard error of ˆμ using the bootstrap. How
+__(c)__ Now estimate the standard error of $\hat\mu$ using the bootstrap. How
 does this compare to your answer from (b)?
 ### Answer:
+```{r}
+# Install the boot package if you haven't already
+# install.packages("boot")
+# Load the boot package
+library(boot)
+```
 
+```{r}
+set.seed(1)
+boot.fn <- function(data, index) {
+    mu <- mean(data[index])
+    return (mu)
+}
+boot_stat = boot(Boston$medv, boot.fn, 1000)
+
+# Extract the standard error from the bootstrap result
+standard_error <- sd(boot_stat$t)
+
+# Print the standard error using cat
+cat("Standard Error:", standard_error, "\n")
+
+```
+The bootstrap estimated standard error of $\hat\mu$ is very close to the 
+estimate found in (b).
 
 __(d)__ Based on your bootstrap estimate from (c), provide a 95 % confidence
 interval for the mean of medv. Compare it to the results
