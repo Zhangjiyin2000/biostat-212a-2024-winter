@@ -86,16 +86,6 @@ boot.fn <- function(data, index) {
 boot(Boston$medv, boot.fn, 1000)
 ```
 
-```{r}
-boot_stat = boot(Boston$medv, boot.fn, 1000)
-
-# Extract the standard error from the bootstrap result
-standard_error <- sd(boot_stat$t)
-
-# Print the standard error using cat
-cat("Standard Error:", standard_error, "\n")
-
-```
 The bootstrap estimated standard error of $\hat\mu$ is very close to the 
 estimate found in (b).
 
@@ -146,16 +136,8 @@ boot.fn <- function(data, index) {
 }
 boot(Boston$medv, boot.fn, 1000)
 ```
-
-```{r}
-boot_stat = boot(Boston$medv, boot.fn, 1000)
-# Extract the standard error from the bootstrap result
-standard_error_med <- sd(boot_stat$t)
-# Print the standard error using cat
-cat("Standard Error:", standard_error, "\n")
-```
 We get an estimated median value of 21.2 which is equal to the value obtained in 
-(e), with a standard error of 0.4106622 which is relatively small compared to 
+(e), with a standard error of 0.3778075 which is relatively small compared to 
 median value.
 
 __(g)__ Based on this data set, provide an estimate for the tenth percentile
@@ -169,11 +151,21 @@ cat("The estimate for the tenth percentile of medv in the population is:",
     "\n")
 ```
 
-__(h)__ Use the bootstrap to estimate the standard error of ˆμ0.1. Comment
-on your findings.
+__(h)__ Use the bootstrap to estimate the standard error of $\hat\mu_{0.1}$. 
+Comment on your findings.
 ### Answer:
+```{r}
+set.seed(1)
+boot.fn <- function(data, index) {
+    mu_0.1 <- quantile(data[index], 0.1)
+    return (mu_0.1)
+}
+boot(Boston$medv, boot.fn, 1000)
+```
 
-
+We get an estimated tenth percentile value of 12.75 which is again equal to the 
+value obtained in (g), with a standard error of 0.4767526 which is relatively 
+small compared to the tenth percentile value.
 
 
 ## Least squares is MLE (10pts)
