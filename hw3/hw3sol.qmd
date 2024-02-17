@@ -159,10 +159,15 @@ We get an estimated median value of 21.2 which is equal to the value obtained in
 median value.
 
 __(g)__ Based on this data set, provide an estimate for the tenth percentile
-of medv in Boston census tracts. Call this quantity ˆμ0.1.
-(You can use the quantile() function.)
+of `medv` in Boston census tracts. Call this quantity $\hat\mu_{0.1}$. (You can 
+use the quantile() function.)
 ### Answer:
-
+```{r}
+mu_0.1_hat <- quantile(Boston$medv, 0.1)
+cat("The estimate for the tenth percentile of medv in the population is:", 
+    mu_0.1_hat, 
+    "\n")
+```
 
 __(h)__ Use the bootstrap to estimate the standard error of ˆμ0.1. Comment
 on your findings.
