@@ -250,7 +250,6 @@ Here is $C_p$
 $$
 \begin{align*}
 C_p &= \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right) \\
-&= \frac{1}{n} \left((Y - X\beta)^T*(Y - X\beta) + 2d\hat\sigma^2\right) \\
 \end{align*}
 $$
 and here is AIC
@@ -260,9 +259,12 @@ $$
 AIC &= -2logL + 2d \\
 &= -2\left(-\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) + 2d \\
 &= n\log(2\pi) + n\log(\sigma^2) +\frac{1}{\sigma^2} (Y - X\beta)^T*(Y - X\beta) + 2d \\
+&= n\log(2\pi) + n\log(\sigma^2) +\frac{1}{\sigma^2} RSS + 2d \\
 \end{align*}
 $$
-where $\text{RSS} = \sum_{i=1}^n (y_i - x_i^T\hat\beta)^2$ and $d$ is the number of predictors.
+where $\text{RSS} = (Y - X\beta)^T*(Y - X\beta)$ and $d$ is the number of predictors.
+
+
 
 Therefore, $C_p$ and AIC are equivalent.
 
@@ -627,6 +629,19 @@ $$
 
 ## ISL Exercise 6.6.11 (30pts)
 
+We will now try to predict per capita crime rate in the Boston data set.
+
+(a) Try out some of the regression methods explored in this chapter,
+such as best subset selection, the lasso, ridge regression, and
+PCR. Present and discuss results for the approaches that you
+consider.
+(b) Propose a model (or set of models) that seem to perform well on
+this data set, and justify your answer. Make sure that you are
+evaluating model performance using validation set error, crossvalidation,
+or some other reasonable alternative, as opposed to
+using training error.
+(c) Does your chosen model involve all of the features in the data
+set? Why or why not?
 
 You must follow the [typical machine learning paradigm](https://ucla-econ-425t.github.io/2023winter/slides/06-modelselection/workflow_lasso.html) to compare _at least_ 3 methods: least squares, lasso, and ridge. Report final results as
 
@@ -637,8 +652,344 @@ You must follow the [typical machine learning paradigm](https://ucla-econ-425t.g
 | Lasso | | | |
 | ... | | | |
 
+Explore the data:
+```{r}
+library(ISLR2)
+data("Boston")
+library(tidymodels)
+library(tidyverse)
+boston <- as_tibble(Boston) %>% print(width = Inf)
 
-### Answer:
+```
+```{r}
+# Numerical summaries
+summary(boston)
+```
+```{r}
+library(GGally)
+# Graphical summaries
+ggpairs(
+  data = boston, 
+  mapping = aes(alpha = 0.25), 
+  lower = list(continuous = "smooth")
+  ) + 
+  labs(title = "Boston Data")
+```
+```{r}
+boston <- boston %>%
+  drop_na()
+dim(boston)
+```
+Initial split into test and non-test sets:
+```{r}
+# For reproducibility
+set.seed(425)
+data_split <- initial_split(
+  boston, 
+  prop = 0.75
+  )
+
+boston_other <- training(data_split)
+dim(boston_other)
+```
+
+```{r}
+boston_test <- testing(data_split)
+dim(boston_test)
+
+```
+
+Recipe (R):
+```{r}
+norm_recipe <- 
+  recipe(
+    crim ~ ., 
+    data = boston_other
+  ) %>%
+  # create traditional dummy variables
+  step_dummy(all_nominal()) %>%
+  # zero-variance filter
+  step_zv(all_predictors()) %>% 
+  # center and scale numeric data
+  step_normalize(all_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = boston_other, retain = TRUE)
+norm_recipe
+
+```
+**Model:**
+Least squares:
+```{r}
+lm_mod <- 
+  linear_reg() %>% 
+  set_engine("lm")
+lm_mod
+```
+Ridge:
+```{r}
+ridge_mod <- 
+  # mixture = 0 (ridge), mixture = 1 (lasso)
+  linear_reg(penalty = tune(), mixture = 0) %>% 
+  set_engine("glmnet")
+ridge_mod
+```
+Lasso:
+```{r}
+lasso_mod <- 
+  # mixture = 0 (ridge), mixture = 1 (lasso)
+  linear_reg(penalty = tune(), mixture = 1.0) %>% 
+  set_engine("glmnet")
+lasso_mod
+```
+
+
+**Workflow (R):**
+Least squares:
+```{r}
+ls_lr_wf <- 
+  workflow() %>%
+  add_model(lm_mod) %>%
+  add_recipe(norm_recipe)
+ls_lr_wf
+
+```
+Ridge:
+```{r}
+ridge_lr_wf <- 
+  workflow() %>%
+  add_model(ridge_mod) %>%
+  add_recipe(norm_recipe)
+ridge_lr_wf
+
+```
+Lasso:
+```{r}
+lasso_lr_wf <- 
+  workflow() %>%
+  add_model(lasso_mod) %>%
+  add_recipe(norm_recipe)
+lasso_lr_wf
+
+```
+**Tuning grid:**
+```{r}
+lambda_grid <-
+  grid_regular(penalty(range = c(-2, 3), trans = log10_trans()), levels = 100)
+lambda_grid
+
+```
+**Cross-validation (CV):**
+```{r}
+set.seed(250)
+folds <- vfold_cv(boston_other, v = 10)
+folds
+
+```
+**Fit cross-validation:**
+least squares:
+
+Ridge:
+```{r}
+ridge_fit <- 
+  ridge_lr_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = lambda_grid
+    )
+ridge_fit
+
+```
+
+Lasso:
+```{r}
+lasso_fit <- 
+  lasso_lr_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = lambda_grid
+    )
+lasso_fit
+
+```
+
+**Visualize CV criterion:**
+Least squares:
+
+
+Ridge:
+```{r}
+ridge_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "rmse") %>%
+  ggplot(mapping = aes(x = penalty, y = mean)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(x = "Penalty", y = "CV RMSE") + 
+  scale_x_log10(labels = scales::label_number())
+
+```
+
+```{r}
+cv_rmse_ridge <- ridge_fit %>%
+                  collect_metrics() %>%
+                  print(width = Inf) %>%
+                  filter(.metric == "rmse") %>%
+                  pull(mean)
+cv_rmse_ridge
+```
+Lasso:
+```{r}
+lasso_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "rmse") %>%
+  ggplot(mapping = aes(x = penalty, y = mean)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(x = "Penalty", y = "CV RMSE") + 
+  scale_x_log10(labels = scales::label_number())
+
+```
+
+```{r}
+cv_rmse_lasso <- lasso_fit %>%
+                 collect_metrics() %>%
+                 print(width = Inf) %>%
+                 filter(.metric == "rmse") %>%
+                 pull(mean)
+cv_rmse_lasso
+```
+
+Show the top 5 models ($\lambda$values):
+Least squares:
+```{r}
+ls_fit %>%
+  show_best("rmse")
+
+```
+Ridge:
+```{r}
+ridge_fit %>%
+  show_best("rmse")
+
+```
+Lasso:
+```{r}
+lasso_fit %>%
+  show_best("rmse")
+
+```
+**Select the best model:**
+Least squares:
+```{r}
+best_ls <- ls_fit %>%
+  select_best("rmse")
+best_ls
+
+```
+Ridge:
+```{r}
+best_ridge <- ridge_fit %>%
+  select_best("rmse")
+best_ridge
+
+```
+Lasso:
+```{r}
+best_lasso <- lasso_fit %>%
+  select_best("rmse")
+best_lasso
+
+```
+**Finalize our model:**
+Final workflow:
+
+Least squares:
+```{r}
+ls_final_wf <- ls_lr_wf %>%
+  finalize_workflow(best_ls)
+ls_final_wf
+
+```
+Ridge:
+```{r}
+ridge_final_wf <- ridge_lr_wf %>%
+  finalize_workflow(best_ridge)
+ridge_final_wf
+
+```
+
+Lasso:
+```{r}
+lasso_final_wf <- lasso_lr_wf %>%
+  finalize_workflow(best_lasso)
+lasso_final_wf
+
+```
+Fit the whole training set, then predict the test cases
+
+Least squares:
+```{r}
+ls_final_fit <- 
+  ls_final_wf %>%
+  last_fit(data_split)
+ls_final_fit
+
+```
+Ridge:
+```{r}
+ridge_final_fit <- 
+  ridge_final_wf %>%
+  last_fit(data_split)
+ridge_final_fit
+```
+Lasso:
+```{r}
+lasso_final_fit <- 
+  lasso_final_wf %>%
+  last_fit(data_split)
+lasso_final_fit
+
+```
+**Test metrics:**
+Least square:
+```{r}
+ls_final_fit %>% collect_metrics()
+test_rmse_ls <- ls_final_fit %>% collect_metrics() %>% filter(.metric == "rmse") %>% select(.estimate)
+test_rmse_ls
+
+```
+Ridge:
+```{r}
+ridge_final_fit %>% collect_metrics()
+test_rmse_ridge <- ridge_final_fit %>% collect_metrics() %>% filter(.metric == "rmse") %>% pull(.estimate)
+test_rmse_ridge
+```
+Lasso:
+```{r}
+lasso_final_fit %>% collect_metrics()
+test_rmse_lasso <- lasso_final_fit %>% collect_metrics() %>% filter(.metric == "rmse") %>% pull(.estimate)
+test_rmse_lasso
+```
+
+```{r}
+# Assuming you have vectors or data frames with CV RMSE and Test RMSE for each method
+#cv_rmse_ls <- ...
+#test_rmse_ls <- ...
+
+
+# Create a tibble to store the results
+results_df <- tibble(
+  Method = c( "Ridge", "Lasso"),
+  CV_RMSE = c(mean(cv_rmse_ridge), mean(cv_rmse_lasso)),
+  Test_RMSE = c( test_rmse_ridge, test_rmse_lasso)
+)
+
+# Print the final results
+print(results_df)
+
+```
 
 ## Bonus question (20pts)
 
@@ -646,6 +997,16 @@ Consider a linear regression, fit by least squares to a set of training data $(x
 $$
 \operatorname{E}[R_{\text{train}}(\hat{\beta})] < \operatorname{E}[R_{\text{test}}(\hat{\beta})].
 $$
+**Answer:**
+
+Assuming that $N > M$, as the training data set is larger than the test data set.
+
+$$
+\begin{align*}
+\operatorname{E}[R_{\text{train}}(\hat{\beta})] &= \operatorname{E}\left[\frac{1}{N} \sum_{i=1}^N (y_i - \hat{\beta}^T x_i)^2\right] \\
+&= \frac{1}{N} \sum_{i=1}^N \operatorname{E}\left[(y_i - \hat{\beta}^T x_i)^2\right] \\
+&= \operatorname{E}\left[(y_1 - \hat{\beta}^T x_1)^2\right]
+\end{align*}
+$$
 
 
-### Answer:
