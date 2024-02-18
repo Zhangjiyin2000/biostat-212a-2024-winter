@@ -33,6 +33,7 @@ method. We can obtain repeated random samples from the original data set without
 generating additional samples. To elucidate, we perform sampling with replacement 
 B times and then find the corresponding estimates and the standard deviation of 
 those B estimates by using the following equation:
+
 $$
 SE_B(\hat\alpha) = \sqrt{\frac{1}{B-1} \sum_{r=1}^B (\hat\alpha^{*r} - \frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r'})^2}
 
@@ -97,6 +98,7 @@ $[\hat\mu - 2SE(\hat\mu), \hat\mu + 2SE(\hat\mu)]$.
 ### Answer:
 ```{r}
 # Calculate the 95% confidence interval using the formula
+standard_error = 0.4106622
 ci_lower <- mu_hat - 2 * standard_error
 ci_upper <- mu_hat + 2 * standard_error
 cat("The 95% confidence interval for the mean of medv is: (", 
@@ -174,17 +176,20 @@ Show that in the case of linear model with Gaussian errors, maximum likelihood a
 
 ### Answer:
 The linear model with Gaussian errors is given by
+
 $$
 Y = X\beta + \epsilon
 $$
 where $\epsilon \sim N(0, \sigma^2)$.
 
 The likelihood function is given by
+
 $$
 L(\beta, \sigma^2) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(Y - X\beta)^T*(Y - X\beta)}{2\sigma^2}\right)
 $$
 
 The log-likelihood function is given by
+
 $$
 \ell(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)
 $$
@@ -201,6 +206,7 @@ $$
 \end{align*}
 $$
 Then compute the derivative of $\beta$ with respect to $l(\beta,\sigma^2)$
+
 $$
 \begin{align*}
 \frac{\partial}{\partial\beta} \ell(\beta, \sigma^2) 
@@ -211,6 +217,7 @@ $$
 \end{align*}
 $$
 Set the derivative of $\beta$ with respect to $l(\beta,\sigma^2)$ to zero
+
 $$
 \begin{align*}
 \frac{1}{2\sigma^2} 2 X^T (Y - X \beta) &= 0 \\
@@ -221,21 +228,25 @@ X^T Y = X^T X \beta \\
 \end{align*}
 $$
 Solve for $\beta$
+
 $$
 \hat\beta = (X^TX)^{-1}X^TY
 $$
 and as for $\sigma^2$
+
 $$
 \sigma^2 = \frac{1}{n} (Y - X\beta)^2
 $$
 
 The least squares estimates are given by
+
 $$
 \hat\beta = (X^TX)^{-1}X^TY
 $$
 Therefore, maximum likelihood and least squares are the same thing.
 
-Here is  $C_p$
+Here is $C_p$
+
 $$
 \begin{align*}
 C_p &= \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right) \\
@@ -243,6 +254,7 @@ C_p &= \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right) \\
 \end{align*}
 $$
 and here is AIC
+
 $$
 \begin{align*}
 AIC &= -2logL + 2d \\
@@ -259,14 +271,19 @@ Therefore, $C_p$ and AIC are equivalent.
 We perform best subset, forward stepwise, and backward stepwise selection on a 
 single data set. For each approach, we obtain p + 1 models, containing 0, 1, 2, 
 ..., p predictors. Explain your answers:
+
 __(a)__ Which of the three models with k predictors has the smallest training 
 RSS?
+
 ### Answer:
+
 The model with best subset selection has the smallest training RSS since it 
 considers every possible model with k predictors. 
 
 __(b)__ Which of the three models with k predictors has the smallest test RSS?
+
 ### Answer:
+
 Providing an accurate assessment is challenging based on the information 
 available. Best subset may have the smallest test RSS because it considers more 
 models. However when n is relatively small compared to p, the best subset might 
@@ -274,24 +291,31 @@ experience overfitting. Additionally, the other two methods could accidentally
 select a model that performs better on the test set.
 
 __(c)__ True or False:
+
 i. The predictors in the k-variable model identified by forward stepwise are a 
 subset of the predictors in the (k+1)-variable model identified by forward 
 stepwise selection.
+
 ### Answer: TRUE
+
 In each step, forward stepwise augments with one additional predictor, hence the 
 statement is true.
 
 ii. The predictors in the k-variable model identified by backward stepwise are a 
 subset of the predictors in the (k + 1)-variable model identified by backward 
 stepwise selection.
+
 ### Answer: TRUE
+
 In each step the backward stepwise the least useful predictor is removed, hence 
 the answer is true.
 
 iii. The predictors in the k-variable model identified by backward stepwise are 
 a subset of the predictors in the (k + 1)-variable model identified by forward 
 stepwise selection.
+
 ### Answer: FALSE
+
 Forward and backward stepwise are independent functions, thus the above 
 statement is false.
 
@@ -299,7 +323,9 @@ statement is false.
 iv. The predictors in the k-variable model identified by forward stepwise are a 
 subset of the predictors in the (k+1)-variable model identified by backward 
 stepwise selection.
+
 ### Answer: FALSE
+
 Forward and backward stepwise are independent functions, thus the above 
 statement is false.
 
@@ -307,7 +333,9 @@ statement is false.
 v. The predictors in the k-variable model identified by best subset are a subset 
 of the predictors in the (k + 1)-variable model identified by best subset 
 selection.
+
 ### Answer: FALSE
+
 Best subset chooses the best model for each k, therefore the above statement is 
 false.
 
@@ -320,20 +348,30 @@ $\sum_{j=1}^{p}|\beta_j| \le s$
 
 for a particular value of $s$. For parts (a) through (e), indicate which
 of i. through v. is correct. Justify your answer.
+
 __(a)__ As we increase s from 0, the training RSS will:
+
 i. Increase initially, and then eventually start decreasing in an inverted U shape.
+
 ii. Decrease initially, and then eventually start increasing in a U shape.
+
 iii. Steadily increase.
+
 iv. Steadily decrease.
+
 v. Remain constant.
+
 ### Answer: iv. Steadily decrease.
+
 When s=0, we have the intercept, which is the expected mean value. As s→∞, we 
 end up with a standard least squares. We should see a decrease in the bias and 
 therefore a steady decrease in the training RSS as we approach a least squares 
 regression.
 
 __(b)__ Repeat (a) for test RSS.
+
 ### Answer: ii. Decrease initially, and then eventually start increasing in a U shape.
+
 When s=0, we have a very high test RSS. As s increases we see the model start to 
 fit the test data and thus the test RSS decreases. However there is a point 
 where the variance starts to increase faster than the bias is decreasing and it 
@@ -341,12 +379,16 @@ starts to overfit the training data. At this point the test RSS will start to
 increase again.
 
 __(c)__ Repeat (a) for variance.
+
 ### Answer: iii. Steadily increase.
+
 When s=0 the variance is very low. As s increases, the variance steadily 
 increases as the model starts to fit the training data.
 
 __(d)__ Repeat (a) for (squared) bias.
+
 ### Answer: iv. Steadily decrease.
+
 When s=0, the bias is very high, and as s increases the bias steadily decreases 
 as the model fits the training data better.
 
@@ -354,6 +396,7 @@ as the model fits the training data better.
 __(e)__ Repeat (a) for the irreducible error.
 
 ### Answer: v. Remain constant.
+
 The irreducible error is a constant and does not change as s increases and it is 
 by definition independent of the model. Therefore it is independent of the value 
 of s.
@@ -369,19 +412,28 @@ $$
 $$
 for a particular value of !. For parts (a) through (e), indicate which of i. 
 through v. is correct. Justify your answer.
+
 __(a)__ As we increase ! from 0, the training RSS will:
+
 i. Increase initially, and then eventually start decreasing in an inverted U shape.
+
 ii. Decrease initially, and then eventually start increasing in a U shape.
+
 iii. Steadily increase.
+
 iv. Steadily decrease.
+
 v. Remain constant.
+
 ### Answer: iii. Steadily increase.
+
 When $\lambda = 0$, we have the standard partial least squares. As λ→∞, we are 
 applying a shrinking penalty which is small when βj is close to zero and 
 therefore shrinks $\beta_j$ close to zero. As $\lambda$ increases, the bias 
 increases and thus we should see a steady increase in the training RSS.
 
 __(b)__ Repeat (a) for test RSS.
+
 ### Answer: ii. Decrease initially, and then eventually start increasing in a U shape.
 As we increase $\lambda$, we'll see an increase in bias but a decrease in 
 variance up until a point where the coefficients are shrunk too. At the end of 
@@ -391,22 +443,187 @@ increase in the test RSS.
 
 
 __(c)__ Repeat (a) for variance.
+
 ### Answer: iv. Steadily decrease.
+
 As we constrain the coefficients we see the variance steadily decrease.
 
 
 __(d)__ Repeat (a) for (squared) bias.
+
 ### Answer: iii. Steadily increase.
+
 As we constrain the coefficients we see a steady increase in the bias.
 
 __(e)__ Repeat (a) for the irreducible error.
+
 ### Answer: v. Remain constant.
+
 The irreducible error is independent of the model and therefore is a constant.
 
 ## ISL Exercise 6.6.5 (10pts)
 
+It is well-known that ridge regression tends to give similar coefficient values 
+to correlated variables, whereas the lasso may give quite different coefficient 
+values to correlated variables. We will now explore this property in a very 
+simple setting.
+
+Suppose that n = 2, p = 2, $x_{11} = x_{12}$, $x_{21} = x_{22}$. Furthermore,
+suppose that $y_1 + y_2 = 0$ and $x_{11} + x_{21} = 0$ and $x_{12} + x_{22} =0$, 
+so that the estimate for the intercept in a least squares, ridge regression, or
+lasso model is zero: $\hat\beta_0 = 0$.
+
+__(a)__ Write out the ridge regression optimization problem in this setting.
 
 ### Answer:
+
+In general, the ridge regression optimization problem is given by
+
+$$
+min[\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2 + \lambda\sum_{j=1}^{p}\beta_j^2]
+$$
+In this case, $\hat\beta_0 = 0$ and $n=p=2$. So, the optimization simplifies to
+
+$$
+min[(y_1 - \hat\beta_1 x_{11} - \hat\beta_2 x_{12})^2 + (y_2 - \hat\beta_1 x_{21} - \hat\beta_2 x_{22})^2 + \lambda( \hat\beta_1^2 + \hat\beta_2^2)]
+
+$$
+We know the following: $x_{11} = x_{12}$, so we'll call that $x_1$, and 
+$x_{21} = x_{22}$, so we'll call that $x_2$. Plugging in the values we know, we
+get 
+
+$$
+min[(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2 + \lambda( \hat\beta_1^2 + \hat\beta_2^2)]
+
+
+$$
+__(b)__ Argue that in this setting, the ridge coefficient estimates satisfy 
+$\hat\beta_1=\hat\beta_2$.
+
+### Answer:
+
+Taking the partial derivatives of the ridge regression optimization problem with
+respect to $\hat\beta_1$ and $\hat\beta_2$ and setting them equal to zero, we
+get
+
+$$
+\frac{\partial}{\partial\hat\beta_1} = 0 \rightarrow -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) + 2\lambda\hat\beta_1 = 0
+$$
+$$
+ -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) = - 2\lambda\hat\beta_1 
+$$
+and
+
+$$
+\frac{\partial}{\partial\hat\beta_2} = 0 \rightarrow -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) + 2\lambda\hat\beta_2 = 0
+$$
+
+$$
+-2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) = - 2\lambda \hat\beta_2
+$$
+Since the left side of the equations are the same, we can assume the right sides 
+equal each other, so
+
+$$
+- 2\lambda\hat\beta_1 = - 2\lambda\hat\beta_2
+$$
+Thus, we can conclude that in this setting, the ridge coefficient estimates
+
+$$
+\hat\beta_1 = \hat\beta_2
+$$
+
+__(c)__ Write out the lasso optimization problem in this setting.
+
+### Answer:
+
+The lasso optimization problem is given by
+
+$$
+min[\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2 + \lambda\sum_{j=1}^{p}|\beta_j|]
+$$
+
+In this case, $\hat\beta_0 = 0$ and $n=p=2$. So, the optimization simplifies to
+
+$$
+min[(y_1 - \hat\beta_1 x_{11} - \hat\beta_2 x_{12})^2 + (y_2 - \hat\beta_1 x_{21} - \hat\beta_2 x_{22})^2 + \lambda( |\hat\beta_1| + |\hat\beta_2|)]
+
+$$
+
+We know the following: $x_{11} = x_{12}$, so we'll call that $x_1$, and
+$x_{21} = x_{22}$, so we'll call that $x_2$. Plugging in the values we know, we
+get
+
+$$
+min[(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2 + \lambda( |\hat\beta_1| + |\hat\beta_2|)]
+
+$$
+
+__(d)__ Argue that in this setting, the lasso coefficients $\hat\beta_1$ and 
+$\hat\beta_2$ are not unique—in other words, there are many possible solutions
+to the optimization problem in (c). Describe these solutions.
+
+### Answer:
+
+The lasso optimization problem is given by
+
+$$
+min[(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2 + \lambda( |\hat\beta_1| + |\hat\beta_2|)]
+
+$$
+
+One way to demonstrate that these solutions are not unique is to make a 
+geometric argument. To make things easier, we’ll use the alternate form of Lasso 
+constraints, namely: $|\hat\beta_1| + |\hat\beta_2| < s$. If we were to plot 
+these constraints, they take the familiar shape of a diamond centered at the 
+origin (0, 0).
+
+Next we’ll consider the squared optimization constraint, namely:
+
+$$
+(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2
+$$xuan
+
+Using the facts we were given regarding the equivalence of many of the 
+variables, we can simplify down to the following optimization:
+
+$$
+min\ 2[y_1 - (\hat\beta_1 + \hat\beta_2 )x_1]^2
+$$
+Taking the derivative of this with respect to $\hat\beta_1 + \hat\beta_2$ and
+setting it equal to zero, we get
+
+$$
+\frac{\partial}{\partial(\hat\beta_1 + \hat\beta_2)} = 0 \rightarrow 2[y_1 - (\hat\beta_1 + \hat\beta_2 )x_1](-x_1) = 0
+
+
+$$
+
+$$
+y_1 - (\hat\beta_1 + \hat\beta_2 )x_1 = 0
+$$
+$$
+\hat\beta_1 + \hat\beta_2 = y_1/x_1
+
+$$
+This optimization problem has a minimum at $\hat\beta_1 +\hat\beta_2 = y_1/x_1$, 
+which defines a line parallel to one edge of the Lasso-diamond 
+$\hat\beta_1 + \hat\beta_2 =s$ or $\hat\beta_1 + \hat\beta_2 = -s$.
+
+As $\hat\beta_1$ and $\hat\beta_2$ vary along the line 
+$\hat\beta_1 +\hat\beta_2 = y_1/x_1$, these contours touch the Lasso-diamond
+edge $\hat\beta_1 + \hat\beta_2 =s$ or $\hat\beta_1 + \hat\beta_2 = -s$ at 
+different points. As a result, the entire edge $\hat\beta_1 + \hat\beta_2 =s$ or 
+$\hat\beta_1 + \hat\beta_2 = -s$ is a potential solution to the Lasso 
+optimization problem.
+
+Thus, the Lasso coefficients are not unique. The general form of solution can be given by
+two line segments:
+
+$$
+\hat\beta_1 + \hat\beta_2 = s; \hat\beta_1 \ge 0; \hat\beta_2 \ge 0; \hat\beta_1 + \hat\beta_2 = -s; \hat\beta_1 \le 0; \hat\beta_2 \le 0
+$$
+
 
 ## ISL Exercise 6.6.11 (30pts)
 

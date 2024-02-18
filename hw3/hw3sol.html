@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jiyin (Jenny) Zhang, 606331859">
-<meta name="dcterms.date" content="2024-02-17">
+<meta name="dcterms.date" content="2024-02-18">
 
 <title>Biostat 212A Homework 3</title>
 <style>
@@ -20,6 +20,40 @@ ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
 width: 0.8em;
 margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
+}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -3187,13 +3221,51 @@ window.Quarto = {
   <li><a href="#answer" id="toc-answer" class="nav-link" data-scroll-target="#answer"><span class="header-section-number">1.1</span> Answer:</a></li>
   </ul></li>
   <li><a href="#isl-exercise-5.4.9-20pts" id="toc-isl-exercise-5.4.9-20pts" class="nav-link" data-scroll-target="#isl-exercise-5.4.9-20pts"><span class="header-section-number">2</span> ISL Exercise 5.4.9 (20pts)</a></li>
-  <li><a href="#least-squares-is-mle-10pts" id="toc-least-squares-is-mle-10pts" class="nav-link" data-scroll-target="#least-squares-is-mle-10pts"><span class="header-section-number">3</span> Least squares is MLE (10pts)</a></li>
-  <li><a href="#isl-exercise-6.6.1-10pts" id="toc-isl-exercise-6.6.1-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.1-10pts"><span class="header-section-number">4</span> ISL Exercise 6.6.1 (10pts)</a></li>
-  <li><a href="#isl-exercise-6.6.3-10pts" id="toc-isl-exercise-6.6.3-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.3-10pts"><span class="header-section-number">5</span> ISL Exercise 6.6.3 (10pts)</a></li>
-  <li><a href="#isl-exercise-6.6.4-10pts" id="toc-isl-exercise-6.6.4-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.4-10pts"><span class="header-section-number">6</span> ISL Exercise 6.6.4 (10pts)</a></li>
-  <li><a href="#isl-exercise-6.6.5-10pts" id="toc-isl-exercise-6.6.5-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.5-10pts"><span class="header-section-number">7</span> ISL Exercise 6.6.5 (10pts)</a></li>
-  <li><a href="#isl-exercise-6.6.11-30pts" id="toc-isl-exercise-6.6.11-30pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.11-30pts"><span class="header-section-number">8</span> ISL Exercise 6.6.11 (30pts)</a></li>
-  <li><a href="#bonus-question-20pts" id="toc-bonus-question-20pts" class="nav-link" data-scroll-target="#bonus-question-20pts"><span class="header-section-number">9</span> Bonus question (20pts)</a></li>
+  <li><a href="#least-squares-is-mle-10pts" id="toc-least-squares-is-mle-10pts" class="nav-link" data-scroll-target="#least-squares-is-mle-10pts"><span class="header-section-number">3</span> Least squares is MLE (10pts)</a>
+  <ul>
+  <li><a href="#answer-1" id="toc-answer-1" class="nav-link" data-scroll-target="#answer-1"><span class="header-section-number">3.1</span> Answer:</a></li>
+  </ul></li>
+  <li><a href="#isl-exercise-6.6.1-10pts" id="toc-isl-exercise-6.6.1-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.1-10pts"><span class="header-section-number">4</span> ISL Exercise 6.6.1 (10pts)</a>
+  <ul>
+  <li><a href="#answer-2" id="toc-answer-2" class="nav-link" data-scroll-target="#answer-2"><span class="header-section-number">4.1</span> Answer:</a></li>
+  <li><a href="#answer-3" id="toc-answer-3" class="nav-link" data-scroll-target="#answer-3"><span class="header-section-number">4.2</span> Answer:</a></li>
+  <li><a href="#answer-true" id="toc-answer-true" class="nav-link" data-scroll-target="#answer-true"><span class="header-section-number">4.3</span> Answer: TRUE</a></li>
+  <li><a href="#answer-true-1" id="toc-answer-true-1" class="nav-link" data-scroll-target="#answer-true-1"><span class="header-section-number">4.4</span> Answer: TRUE</a></li>
+  <li><a href="#answer-false" id="toc-answer-false" class="nav-link" data-scroll-target="#answer-false"><span class="header-section-number">4.5</span> Answer: FALSE</a></li>
+  <li><a href="#answer-false-1" id="toc-answer-false-1" class="nav-link" data-scroll-target="#answer-false-1"><span class="header-section-number">4.6</span> Answer: FALSE</a></li>
+  <li><a href="#answer-false-2" id="toc-answer-false-2" class="nav-link" data-scroll-target="#answer-false-2"><span class="header-section-number">4.7</span> Answer: FALSE</a></li>
+  </ul></li>
+  <li><a href="#isl-exercise-6.6.3-10pts" id="toc-isl-exercise-6.6.3-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.3-10pts"><span class="header-section-number">5</span> ISL Exercise 6.6.3 (10pts)</a>
+  <ul>
+  <li><a href="#answer-iv.-steadily-decrease." id="toc-answer-iv.-steadily-decrease." class="nav-link" data-scroll-target="#answer-iv.-steadily-decrease."><span class="header-section-number">5.1</span> Answer: iv. Steadily decrease.</a></li>
+  <li><a href="#answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape." id="toc-answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape." class="nav-link" data-scroll-target="#answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape."><span class="header-section-number">5.2</span> Answer: ii. Decrease initially, and then eventually start increasing in a U shape.</a></li>
+  <li><a href="#answer-iii.-steadily-increase." id="toc-answer-iii.-steadily-increase." class="nav-link" data-scroll-target="#answer-iii.-steadily-increase."><span class="header-section-number">5.3</span> Answer: iii. Steadily increase.</a></li>
+  <li><a href="#answer-iv.-steadily-decrease.-1" id="toc-answer-iv.-steadily-decrease.-1" class="nav-link" data-scroll-target="#answer-iv.-steadily-decrease.-1"><span class="header-section-number">5.4</span> Answer: iv. Steadily decrease.</a></li>
+  <li><a href="#answer-v.-remain-constant." id="toc-answer-v.-remain-constant." class="nav-link" data-scroll-target="#answer-v.-remain-constant."><span class="header-section-number">5.5</span> Answer: v. Remain constant.</a></li>
+  </ul></li>
+  <li><a href="#isl-exercise-6.6.4-10pts" id="toc-isl-exercise-6.6.4-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.4-10pts"><span class="header-section-number">6</span> ISL Exercise 6.6.4 (10pts)</a>
+  <ul>
+  <li><a href="#answer-iii.-steadily-increase.-1" id="toc-answer-iii.-steadily-increase.-1" class="nav-link" data-scroll-target="#answer-iii.-steadily-increase.-1"><span class="header-section-number">6.1</span> Answer: iii. Steadily increase.</a></li>
+  <li><a href="#answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape.-1" id="toc-answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape.-1" class="nav-link" data-scroll-target="#answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape.-1"><span class="header-section-number">6.2</span> Answer: ii. Decrease initially, and then eventually start increasing in a U shape.</a></li>
+  <li><a href="#answer-iv.-steadily-decrease.-2" id="toc-answer-iv.-steadily-decrease.-2" class="nav-link" data-scroll-target="#answer-iv.-steadily-decrease.-2"><span class="header-section-number">6.3</span> Answer: iv. Steadily decrease.</a></li>
+  <li><a href="#answer-iii.-steadily-increase.-2" id="toc-answer-iii.-steadily-increase.-2" class="nav-link" data-scroll-target="#answer-iii.-steadily-increase.-2"><span class="header-section-number">6.4</span> Answer: iii. Steadily increase.</a></li>
+  <li><a href="#answer-v.-remain-constant.-1" id="toc-answer-v.-remain-constant.-1" class="nav-link" data-scroll-target="#answer-v.-remain-constant.-1"><span class="header-section-number">6.5</span> Answer: v. Remain constant.</a></li>
+  </ul></li>
+  <li><a href="#isl-exercise-6.6.5-10pts" id="toc-isl-exercise-6.6.5-10pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.5-10pts"><span class="header-section-number">7</span> ISL Exercise 6.6.5 (10pts)</a>
+  <ul>
+  <li><a href="#answer-4" id="toc-answer-4" class="nav-link" data-scroll-target="#answer-4"><span class="header-section-number">7.1</span> Answer:</a></li>
+  <li><a href="#answer-5" id="toc-answer-5" class="nav-link" data-scroll-target="#answer-5"><span class="header-section-number">7.2</span> Answer:</a></li>
+  <li><a href="#answer-6" id="toc-answer-6" class="nav-link" data-scroll-target="#answer-6"><span class="header-section-number">7.3</span> Answer:</a></li>
+  <li><a href="#answer-7" id="toc-answer-7" class="nav-link" data-scroll-target="#answer-7"><span class="header-section-number">7.4</span> Answer:</a></li>
+  </ul></li>
+  <li><a href="#isl-exercise-6.6.11-30pts" id="toc-isl-exercise-6.6.11-30pts" class="nav-link" data-scroll-target="#isl-exercise-6.6.11-30pts"><span class="header-section-number">8</span> ISL Exercise 6.6.11 (30pts)</a>
+  <ul>
+  <li><a href="#answer-8" id="toc-answer-8" class="nav-link" data-scroll-target="#answer-8"><span class="header-section-number">8.1</span> Answer:</a></li>
+  </ul></li>
+  <li><a href="#bonus-question-20pts" id="toc-bonus-question-20pts" class="nav-link" data-scroll-target="#bonus-question-20pts"><span class="header-section-number">9</span> Bonus question (20pts)</a>
+  <ul>
+  <li><a href="#answer-9" id="toc-answer-9" class="nav-link" data-scroll-target="#answer-9"><span class="header-section-number">9.1</span> Answer:</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -3221,7 +3293,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 17, 2024</p>
+      <p class="date">February 18, 2024</p>
     </div>
   </div>
   
@@ -3238,28 +3310,442 @@ window.Quarto = {
 <p>Suppose that we use some statistical learning method to make a prediction for the response Y for a particular value of the predictor X. Carefully describe how we might estimate the standard deviation of our prediction.</p>
 <section id="answer" class="level3" data-number="1.1">
 <h3 data-number="1.1" class="anchored" data-anchor-id="answer"><span class="header-section-number">1.1</span> Answer:</h3>
-<p>We can estimate the standard deviation of our prediction by using the bootstrap method. We can obtain repeated random samples from the original data set. To elucidate, we perform sampling with replacement B times and then find the corresponding estimates and the standard deviation of those B estimates by using the following equation: $$ SE_B(_{}) = </p>
-<p>$$ where <span class="math inline">\((\hat_{\alpha})^{*r}\)</span> is the estimate of <span class="math inline">\(\hat_{\alpha}\)</span> for the rth bootstrap sample and <span class="math inline">\(\hat_{\alpha}^{*r&#39;}\)</span> is the average of the B estimates.</p>
+<p>We can estimate the standard deviation of our prediction by using the bootstrap method. We can obtain repeated random samples from the original data set without generating additional samples. To elucidate, we perform sampling with replacement B times and then find the corresponding estimates and the standard deviation of those B estimates by using the following equation:</p>
+<p>$$ SE_B() = </p>
+<p>$$ where <span class="math inline">\(\hat\alpha^{*r}\)</span> is the estimate of <span class="math inline">\(\hat\alpha\)</span> for the <span class="math inline">\(r^{th}\)</span> bootstrap sample and <span class="math inline">\(\frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r&#39;}\)</span> is the average of the B estimates.</p>
 </section>
 </section>
 <section id="isl-exercise-5.4.9-20pts" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="isl-exercise-5.4.9-20pts"><span class="header-section-number">2</span> ISL Exercise 5.4.9 (20pts)</h2>
+<p>We will now consider the Boston housing data set, from the ISLR2 library. <strong>(a)</strong> Based on this data set, provide an estimate for the population mean of <code>medv</code>. Call this estimate <span class="math inline">\(\hat\mu\)</span>. ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ISLR2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;Boston&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Boston)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     crim zn indus chas   nox    rm  age    dis rad tax ptratio lstat medv
+1 0.00632 18  2.31    0 0.538 6.575 65.2 4.0900   1 296    15.3  4.98 24.0
+2 0.02731  0  7.07    0 0.469 6.421 78.9 4.9671   2 242    17.8  9.14 21.6
+3 0.02729  0  7.07    0 0.469 7.185 61.1 4.9671   2 242    17.8  4.03 34.7
+4 0.03237  0  2.18    0 0.458 6.998 45.8 6.0622   3 222    18.7  2.94 33.4
+5 0.06905  0  2.18    0 0.458 7.147 54.2 6.0622   3 222    18.7  5.33 36.2
+6 0.02985  0  2.18    0 0.458 6.430 58.7 6.0622   3 222    18.7  5.21 28.7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mu_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(Boston<span class="sc">$</span>medv)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The population mean of medv is:&quot;</span>, mu_hat, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The population mean of medv is: 22.53281 </code></pre>
+</div>
+</div>
+<p><strong>(b)</strong> Provide an estimate of the standard error of <span class="math inline">\(\hat\mu\)</span>. Interpret this result. Hint: We can compute the standard error of the sample mean by dividing the sample standard deviation by the square root of the number of observations. ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>se_mu_hat <span class="ot">&lt;-</span> <span class="fu">sd</span>(Boston<span class="sc">$</span>medv) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">length</span>(Boston<span class="sc">$</span>medv))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The estimate of the standard error of the population mean of medv is:&quot;</span>, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    se_mu_hat, </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The estimate of the standard error of the population mean of medv is: 0.4088611 </code></pre>
+</div>
+</div>
+<p><strong>(c)</strong> Now estimate the standard error of <span class="math inline">\(\hat\mu\)</span> using the bootstrap. How does this compare to your answer from (b)? ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the boot package if you haven&#39;t already</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(&quot;boot&quot;)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the boot package</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>boot.fn <span class="ot">&lt;-</span> <span class="cf">function</span>(data, index) {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> <span class="fu">mean</span>(data[index])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> (mu)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">boot</span>(Boston<span class="sc">$</span>medv, boot.fn, <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ORDINARY NONPARAMETRIC BOOTSTRAP
+
+
+Call:
+boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+
+Bootstrap Statistics :
+    original      bias    std. error
+t1* 22.53281 0.007650791   0.4106622</code></pre>
+</div>
+</div>
+<p>The bootstrap estimated standard error of <span class="math inline">\(\hat\mu\)</span> is very close to the estimate found in (b).</p>
+<p><strong>(d)</strong> Based on your bootstrap estimate from (c), provide a 95 % confidence interval for the mean of medv. Compare it to the results obtained using t.test(Boston<span class="math inline">\(medv).
+Hint: You can approximate a 95 % confidence interval using the formula\)</span>[- 2SE(), + 2SE()]$. ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the 95% confidence interval using the formula</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>standard_error <span class="ot">=</span> <span class="fl">0.4106622</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ci_lower <span class="ot">&lt;-</span> mu_hat <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> standard_error</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ci_upper <span class="ot">&lt;-</span> mu_hat <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> standard_error</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The 95% confidence interval for the mean of medv is: (&quot;</span>, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    ci_lower, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;,&quot;</span>, </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    ci_upper, </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The 95% confidence interval for the mean of medv is: ( 21.71148 , 23.35413 )</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare it to the results obtained using t.test(Boston$medv)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(Boston<span class="sc">$</span>medv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    One Sample t-test
+
+data:  Boston$medv
+t = 55.111, df = 505, p-value &lt; 2.2e-16
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 21.72953 23.33608
+sample estimates:
+mean of x 
+ 22.53281 </code></pre>
+</div>
+</div>
+<p>The bootstrap confidence interval is very close to the one provided by the <code>t.test()</code> function.</p>
+<p><strong>(e)</strong> Based on this data set, provide an estimate, <span class="math inline">\(\hat\mu_{med}\)</span>, for the median value of <code>medv</code> in the population. ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>mu_med_hat <span class="ot">&lt;-</span> <span class="fu">median</span>(Boston<span class="sc">$</span>medv)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The estimate for the median value of medv in the population is:&quot;</span>, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    mu_med_hat, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The estimate for the median value of medv in the population is: 21.2 </code></pre>
+</div>
+</div>
+<p><strong>(f)</strong> We now would like to estimate the standard error of <span class="math inline">\(\hat\mu_{med}\)</span>. Unfortunately, there is no simple formula for computing the standard error of the median. Instead, estimate the standard error of the median using the bootstrap. Comment on your findings. ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>boot.fn <span class="ot">&lt;-</span> <span class="cf">function</span>(data, index) {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    mu_med <span class="ot">&lt;-</span> <span class="fu">median</span>(data[index])</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> (mu_med)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">boot</span>(Boston<span class="sc">$</span>medv, boot.fn, <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ORDINARY NONPARAMETRIC BOOTSTRAP
+
+
+Call:
+boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+
+Bootstrap Statistics :
+    original  bias    std. error
+t1*     21.2 0.02295   0.3778075</code></pre>
+</div>
+</div>
+<p>We get an estimated median value of 21.2 which is equal to the value obtained in (e), with a standard error of 0.3778075 which is relatively small compared to median value.</p>
+<p><strong>(g)</strong> Based on this data set, provide an estimate for the tenth percentile of <code>medv</code> in Boston census tracts. Call this quantity <span class="math inline">\(\hat\mu_{0.1}\)</span>. (You can use the quantile() function.) ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>mu_0<span class="fl">.1</span>_hat <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Boston<span class="sc">$</span>medv, <span class="fl">0.1</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The estimate for the tenth percentile of medv in the population is:&quot;</span>, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    mu_0<span class="fl">.1</span>_hat, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The estimate for the tenth percentile of medv in the population is: 12.75 </code></pre>
+</div>
+</div>
+<p><strong>(h)</strong> Use the bootstrap to estimate the standard error of <span class="math inline">\(\hat\mu_{0.1}\)</span>. Comment on your findings. ### Answer:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>boot.fn <span class="ot">&lt;-</span> <span class="cf">function</span>(data, index) {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    mu_0<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">quantile</span>(data[index], <span class="fl">0.1</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> (mu_0<span class="fl">.1</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">boot</span>(Boston<span class="sc">$</span>medv, boot.fn, <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ORDINARY NONPARAMETRIC BOOTSTRAP
+
+
+Call:
+boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+
+Bootstrap Statistics :
+    original  bias    std. error
+t1*    12.75  0.0339   0.4767526</code></pre>
+</div>
+</div>
+<p>We get an estimated tenth percentile value of 12.75 which is again equal to the value obtained in (g), with a standard error of 0.4767526 which is relatively small compared to the tenth percentile value.</p>
 </section>
 <section id="least-squares-is-mle-10pts" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="least-squares-is-mle-10pts"><span class="header-section-number">3</span> Least squares is MLE (10pts)</h2>
 <p>Show that in the case of linear model with Gaussian errors, maximum likelihood and least squares are the same thing, and <span class="math inline">\(C_p\)</span> and AIC are equivalent.</p>
+<section id="answer-1" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="answer-1"><span class="header-section-number">3.1</span> Answer:</h3>
+<p>The linear model with Gaussian errors is given by</p>
+<p><span class="math display">\[
+Y = X\beta + \epsilon
+\]</span> where <span class="math inline">\(\epsilon \sim N(0, \sigma^2)\)</span>.</p>
+<p>The likelihood function is given by</p>
+<p><span class="math display">\[
+L(\beta, \sigma^2) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(Y - X\beta)^T*(Y - X\beta)}{2\sigma^2}\right)
+\]</span></p>
+<p>The log-likelihood function is given by</p>
+<p><span class="math display">\[
+\ell(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)
+\]</span></p>
+<p>Compute the derivative of <span class="math inline">\(\beta\)</span> with respect to $(Y - X)^T*(Y - X) $ $$ <span class="math display">\[\begin{align*}
+\frac{\partial}{\partial\beta} (Y - X\beta)^T*(Y - X\beta)
+&amp;= \frac{\partial}{\partial\beta} (Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta) \\
+&amp;= \frac{\partial}{\partial\beta} (Y^TY - 2\beta^TX^TY - \beta^TX^TX\beta) \\
+&amp;= -2 X^T Y +2 X^T X\beta \\
+&amp;= -2 X^T (Y - X \beta) \\
+
+\end{align*}\]</span> $$ Then compute the derivative of <span class="math inline">\(\beta\)</span> with respect to <span class="math inline">\(l(\beta,\sigma^2)\)</span></p>
+<p>$$ <span class="math display">\[\begin{align*}
+\frac{\partial}{\partial\beta} \ell(\beta, \sigma^2)
+&amp;= \frac{\partial}{\partial\beta} \left(-\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) \\
+&amp;= \frac{\partial}{\partial\beta} \left(-\frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) \\
+&amp;= \frac{1}{2\sigma^2} 2 X^T (Y - X \beta) \\
+
+\end{align*}\]</span> $$ Set the derivative of <span class="math inline">\(\beta\)</span> with respect to <span class="math inline">\(l(\beta,\sigma^2)\)</span> to zero</p>
+<p>$$ <span class="math display">\[\begin{align*}
+\frac{1}{2\sigma^2} 2 X^T (Y - X \beta) &amp;= 0 \\
+X^T (Y - X \beta) &amp;= 0 \\
+X^T Y - X^T X \beta &amp;= 0 \\
+X^T Y = X^T X \beta \\
+
+\end{align*}\]</span> $$ Solve for <span class="math inline">\(\beta\)</span></p>
+<p><span class="math display">\[
+\hat\beta = (X^TX)^{-1}X^TY
+\]</span> and as for <span class="math inline">\(\sigma^2\)</span></p>
+<p><span class="math display">\[
+\sigma^2 = \frac{1}{n} (Y - X\beta)^2
+\]</span></p>
+<p>The least squares estimates are given by</p>
+<p><span class="math display">\[
+\hat\beta = (X^TX)^{-1}X^TY
+\]</span> Therefore, maximum likelihood and least squares are the same thing.</p>
+<p>Here is <span class="math inline">\(C_p\)</span></p>
+<p><span class="math display">\[
+\begin{align*}
+C_p &amp;= \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right) \\
+&amp;= \frac{1}{n} \left((Y - X\beta)^T*(Y - X\beta) + 2d\hat\sigma^2\right) \\
+\end{align*}
+\]</span> and here is AIC</p>
+<p><span class="math display">\[
+\begin{align*}
+AIC &amp;= -2logL + 2d \\
+&amp;= -2\left(-\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) + 2d \\
+&amp;= n\log(2\pi) + n\log(\sigma^2) +\frac{1}{\sigma^2} (Y - X\beta)^T*(Y - X\beta) + 2d \\
+\end{align*}
+\]</span> where <span class="math inline">\(\text{RSS} = \sum_{i=1}^n (y_i - x_i^T\hat\beta)^2\)</span> and <span class="math inline">\(d\)</span> is the number of predictors.</p>
+<p>Therefore, <span class="math inline">\(C_p\)</span> and AIC are equivalent.</p>
+</section>
 </section>
 <section id="isl-exercise-6.6.1-10pts" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="isl-exercise-6.6.1-10pts"><span class="header-section-number">4</span> ISL Exercise 6.6.1 (10pts)</h2>
+<p>We perform best subset, forward stepwise, and backward stepwise selection on a single data set. For each approach, we obtain p + 1 models, containing 0, 1, 2, …, p predictors. Explain your answers:</p>
+<p><strong>(a)</strong> Which of the three models with k predictors has the smallest training RSS?</p>
+<section id="answer-2" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="answer-2"><span class="header-section-number">4.1</span> Answer:</h3>
+<p>The model with best subset selection has the smallest training RSS since it considers every possible model with k predictors.</p>
+<p><strong>(b)</strong> Which of the three models with k predictors has the smallest test RSS?</p>
+</section>
+<section id="answer-3" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="answer-3"><span class="header-section-number">4.2</span> Answer:</h3>
+<p>Providing an accurate assessment is challenging based on the information available. Best subset may have the smallest test RSS because it considers more models. However when n is relatively small compared to p, the best subset might experience overfitting. Additionally, the other two methods could accidentally select a model that performs better on the test set.</p>
+<p><strong>(c)</strong> True or False:</p>
+<ol type="i">
+<li>The predictors in the k-variable model identified by forward stepwise are a subset of the predictors in the (k+1)-variable model identified by forward stepwise selection.</li>
+</ol>
+</section>
+<section id="answer-true" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="answer-true"><span class="header-section-number">4.3</span> Answer: TRUE</h3>
+<p>In each step, forward stepwise augments with one additional predictor, hence the statement is true.</p>
+<ol start="2" type="i">
+<li>The predictors in the k-variable model identified by backward stepwise are a subset of the predictors in the (k + 1)-variable model identified by backward stepwise selection.</li>
+</ol>
+</section>
+<section id="answer-true-1" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="answer-true-1"><span class="header-section-number">4.4</span> Answer: TRUE</h3>
+<p>In each step the backward stepwise the least useful predictor is removed, hence the answer is true.</p>
+<ol start="3" type="i">
+<li>The predictors in the k-variable model identified by backward stepwise are a subset of the predictors in the (k + 1)-variable model identified by forward stepwise selection.</li>
+</ol>
+</section>
+<section id="answer-false" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="answer-false"><span class="header-section-number">4.5</span> Answer: FALSE</h3>
+<p>Forward and backward stepwise are independent functions, thus the above statement is false.</p>
+<ol start="4" type="i">
+<li>The predictors in the k-variable model identified by forward stepwise are a subset of the predictors in the (k+1)-variable model identified by backward stepwise selection.</li>
+</ol>
+</section>
+<section id="answer-false-1" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="answer-false-1"><span class="header-section-number">4.6</span> Answer: FALSE</h3>
+<p>Forward and backward stepwise are independent functions, thus the above statement is false.</p>
+<ol start="22" type="a">
+<li>The predictors in the k-variable model identified by best subset are a subset of the predictors in the (k + 1)-variable model identified by best subset selection.</li>
+</ol>
+</section>
+<section id="answer-false-2" class="level3" data-number="4.7">
+<h3 data-number="4.7" class="anchored" data-anchor-id="answer-false-2"><span class="header-section-number">4.7</span> Answer: FALSE</h3>
+<p>Best subset chooses the best model for each k, therefore the above statement is false.</p>
+</section>
 </section>
 <section id="isl-exercise-6.6.3-10pts" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="isl-exercise-6.6.3-10pts"><span class="header-section-number">5</span> ISL Exercise 6.6.3 (10pts)</h2>
+<p>Suppose we estimate the regression coefficients in a linear regression model by minimizing</p>
+<p><span class="math inline">\(\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2\)</span> subject to <span class="math inline">\(\sum_{j=1}^{p}|\beta_j| \le s\)</span></p>
+<p>for a particular value of <span class="math inline">\(s\)</span>. For parts (a) through (e), indicate which of i. through v. is correct. Justify your answer.</p>
+<p><strong>(a)</strong> As we increase s from 0, the training RSS will:</p>
+<ol type="i">
+<li><p>Increase initially, and then eventually start decreasing in an inverted U shape.</p></li>
+<li><p>Decrease initially, and then eventually start increasing in a U shape.</p></li>
+<li><p>Steadily increase.</p></li>
+<li><p>Steadily decrease.</p></li>
+<li><p>Remain constant.</p></li>
+</ol>
+<section id="answer-iv.-steadily-decrease." class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="answer-iv.-steadily-decrease."><span class="header-section-number">5.1</span> Answer: iv. Steadily decrease.</h3>
+<p>When s=0, we have the intercept, which is the expected mean value. As s→∞, we end up with a standard least squares. We should see a decrease in the bias and therefore a steady decrease in the training RSS as we approach a least squares regression.</p>
+<p><strong>(b)</strong> Repeat (a) for test RSS.</p>
+</section>
+<section id="answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape." class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape."><span class="header-section-number">5.2</span> Answer: ii. Decrease initially, and then eventually start increasing in a U shape.</h3>
+<p>When s=0, we have a very high test RSS. As s increases we see the model start to fit the test data and thus the test RSS decreases. However there is a point where the variance starts to increase faster than the bias is decreasing and it starts to overfit the training data. At this point the test RSS will start to increase again.</p>
+<p><strong>(c)</strong> Repeat (a) for variance.</p>
+</section>
+<section id="answer-iii.-steadily-increase." class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="answer-iii.-steadily-increase."><span class="header-section-number">5.3</span> Answer: iii. Steadily increase.</h3>
+<p>When s=0 the variance is very low. As s increases, the variance steadily increases as the model starts to fit the training data.</p>
+<p><strong>(d)</strong> Repeat (a) for (squared) bias.</p>
+</section>
+<section id="answer-iv.-steadily-decrease.-1" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="answer-iv.-steadily-decrease.-1"><span class="header-section-number">5.4</span> Answer: iv. Steadily decrease.</h3>
+<p>When s=0, the bias is very high, and as s increases the bias steadily decreases as the model fits the training data better.</p>
+<p><strong>(e)</strong> Repeat (a) for the irreducible error.</p>
+</section>
+<section id="answer-v.-remain-constant." class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="answer-v.-remain-constant."><span class="header-section-number">5.5</span> Answer: v. Remain constant.</h3>
+<p>The irreducible error is a constant and does not change as s increases and it is by definition independent of the model. Therefore it is independent of the value of s.</p>
+</section>
 </section>
 <section id="isl-exercise-6.6.4-10pts" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="isl-exercise-6.6.4-10pts"><span class="header-section-number">6</span> ISL Exercise 6.6.4 (10pts)</h2>
+<p>Suppose we estimate the regression coefficients in a linear regression model by minimizing</p>
+<p>$$ <em>{i=1}^{n}(y_i - <em>0 - </em>{j=1}<sup>{p}<em>jx</em>{ij})</sup>2 + </em>{j=1}^{p}_j^2</p>
+<p>$$ for a particular value of !. For parts (a) through (e), indicate which of i. through v. is correct. Justify your answer.</p>
+<p><strong>(a)</strong> As we increase ! from 0, the training RSS will:</p>
+<ol type="i">
+<li><p>Increase initially, and then eventually start decreasing in an inverted U shape.</p></li>
+<li><p>Decrease initially, and then eventually start increasing in a U shape.</p></li>
+<li><p>Steadily increase.</p></li>
+<li><p>Steadily decrease.</p></li>
+<li><p>Remain constant.</p></li>
+</ol>
+<section id="answer-iii.-steadily-increase.-1" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="answer-iii.-steadily-increase.-1"><span class="header-section-number">6.1</span> Answer: iii. Steadily increase.</h3>
+<p>When <span class="math inline">\(\lambda = 0\)</span>, we have the standard partial least squares. As λ→∞, we are applying a shrinking penalty which is small when βj is close to zero and therefore shrinks <span class="math inline">\(\beta_j\)</span> close to zero. As <span class="math inline">\(\lambda\)</span> increases, the bias increases and thus we should see a steady increase in the training RSS.</p>
+<p><strong>(b)</strong> Repeat (a) for test RSS.</p>
+</section>
+<section id="answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape.-1" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="answer-ii.-decrease-initially-and-then-eventually-start-increasing-in-a-u-shape.-1"><span class="header-section-number">6.2</span> Answer: ii. Decrease initially, and then eventually start increasing in a U shape.</h3>
+<p>As we increase <span class="math inline">\(\lambda\)</span>, we’ll see an increase in bias but a decrease in variance up until a point where the coefficients are shrunk too. At the end of the scale when <span class="math inline">\(\lambda\rightarrow\infty\)</span>, we approach the null model. Therefore we should see an initial decrease in the test RSS up to a point, then an increase in the test RSS.</p>
+<p><strong>(c)</strong> Repeat (a) for variance.</p>
+</section>
+<section id="answer-iv.-steadily-decrease.-2" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="answer-iv.-steadily-decrease.-2"><span class="header-section-number">6.3</span> Answer: iv. Steadily decrease.</h3>
+<p>As we constrain the coefficients we see the variance steadily decrease.</p>
+<p><strong>(d)</strong> Repeat (a) for (squared) bias.</p>
+</section>
+<section id="answer-iii.-steadily-increase.-2" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="answer-iii.-steadily-increase.-2"><span class="header-section-number">6.4</span> Answer: iii. Steadily increase.</h3>
+<p>As we constrain the coefficients we see a steady increase in the bias.</p>
+<p><strong>(e)</strong> Repeat (a) for the irreducible error.</p>
+</section>
+<section id="answer-v.-remain-constant.-1" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="answer-v.-remain-constant.-1"><span class="header-section-number">6.5</span> Answer: v. Remain constant.</h3>
+<p>The irreducible error is independent of the model and therefore is a constant.</p>
+</section>
 </section>
 <section id="isl-exercise-6.6.5-10pts" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="isl-exercise-6.6.5-10pts"><span class="header-section-number">7</span> ISL Exercise 6.6.5 (10pts)</h2>
+<p>It is well-known that ridge regression tends to give similar coefficient values to correlated variables, whereas the lasso may give quite different coefficient values to correlated variables. We will now explore this property in a very simple setting.</p>
+<p>Suppose that n = 2, p = 2, <span class="math inline">\(x_{11} = x_{12}\)</span>, <span class="math inline">\(x_{21} = x_{22}\)</span>. Furthermore, suppose that <span class="math inline">\(y_1 + y_2 = 0\)</span> and <span class="math inline">\(x_{11} + x_{21} = 0\)</span> and <span class="math inline">\(x_{12} + x_{22} =0\)</span>, so that the estimate for the intercept in a least squares, ridge regression, or lasso model is zero: <span class="math inline">\(\hat\beta_0 = 0\)</span>.</p>
+<p><strong>(a)</strong> Write out the ridge regression optimization problem in this setting.</p>
+<section id="answer-4" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="answer-4"><span class="header-section-number">7.1</span> Answer:</h3>
+<p>In general, the ridge regression optimization problem is given by</p>
+<p><span class="math display">\[
+min[\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2 + \lambda\sum_{j=1}^{p}\beta_j^2]
+\]</span> In this case, <span class="math inline">\(\hat\beta_0 = 0\)</span> and <span class="math inline">\(n=p=2\)</span>. So, the optimization simplifies to</p>
+<p>$$ min[(y_1 - <em>1 x</em>{11} - <em>2 x</em>{12})^2 + (y_2 - <em>1 x</em>{21} - <em>2 x</em>{22})^2 + ( _1^2 + _2^2)]</p>
+<p>$$ We know the following: <span class="math inline">\(x_{11} = x_{12}\)</span>, so we’ll call that <span class="math inline">\(x_1\)</span>, and <span class="math inline">\(x_{21} = x_{22}\)</span>, so we’ll call that <span class="math inline">\(x_2\)</span>. Plugging in the values we know, we get</p>
+<p>$$ min[(y_1 - _1 x_1 - _2 x_1)^2 + (y_2 - _1 x_2 - _2 x_2)^2 + ( _1^2 + _2^2)]</p>
+<p>$$ <strong>(b)</strong> Argue that in this setting, the ridge coefficient estimates satisfy <span class="math inline">\(\hat\beta_1=\hat\beta_2\)</span>.</p>
+</section>
+<section id="answer-5" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="answer-5"><span class="header-section-number">7.2</span> Answer:</h3>
+<p>Taking the partial derivatives of the ridge regression optimization problem with respect to <span class="math inline">\(\hat\beta_1\)</span> and <span class="math inline">\(\hat\beta_2\)</span> and setting them equal to zero, we get</p>
+<p><span class="math display">\[
+\frac{\partial}{\partial\hat\beta_1} = 0 \rightarrow -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) + 2\lambda\hat\beta_1 = 0
+\]</span> <span class="math display">\[
+-2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) = - 2\lambda\hat\beta_1
+\]</span> and</p>
+<p><span class="math display">\[
+\frac{\partial}{\partial\hat\beta_2} = 0 \rightarrow -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) + 2\lambda\hat\beta_2 = 0
+\]</span></p>
+<p><span class="math display">\[
+-2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) = - 2\lambda \hat\beta_2
+\]</span> Since the left side of the equations are the same, we can assume the right sides equal each other, so</p>
+<p><span class="math display">\[
+- 2\lambda\hat\beta_1 = - 2\lambda\hat\beta_2
+\]</span> Thus, we can conclude that in this setting, the ridge coefficient estimates</p>
+<p><span class="math display">\[
+\hat\beta_1 = \hat\beta_2
+\]</span></p>
+<p><strong>(c)</strong> Write out the lasso optimization problem in this setting.</p>
+</section>
+<section id="answer-6" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="answer-6"><span class="header-section-number">7.3</span> Answer:</h3>
+<p>The lasso optimization problem is given by</p>
+<p><span class="math display">\[
+min[\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2 + \lambda\sum_{j=1}^{p}|\beta_j|]
+\]</span></p>
+<p>In this case, <span class="math inline">\(\hat\beta_0 = 0\)</span> and <span class="math inline">\(n=p=2\)</span>. So, the optimization simplifies to</p>
+<p>$$ min[(y_1 - <em>1 x</em>{11} - <em>2 x</em>{12})^2 + (y_2 - <em>1 x</em>{21} - <em>2 x</em>{22})^2 + ( |_1| + |_2|)]</p>
+<p>$$</p>
+<p>We know the following: <span class="math inline">\(x_{11} = x_{12}\)</span>, so we’ll call that <span class="math inline">\(x_1\)</span>, and <span class="math inline">\(x_{21} = x_{22}\)</span>, so we’ll call that <span class="math inline">\(x_2\)</span>. Plugging in the values we know, we get</p>
+<p>$$ min[(y_1 - _1 x_1 - _2 x_1)^2 + (y_2 - _1 x_2 - _2 x_2)^2 + ( |_1| + |_2|)]</p>
+<p>$$</p>
+<p><strong>(d)</strong> Argue that in this setting, the lasso coefficients <span class="math inline">\(\hat\beta_1\)</span> and <span class="math inline">\(\hat\beta_2\)</span> are not unique—in other words, there are many possible solutions to the optimization problem in (c). Describe these solutions.</p>
+</section>
+<section id="answer-7" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="answer-7"><span class="header-section-number">7.4</span> Answer:</h3>
+<p>The lasso optimization problem is given by</p>
+<p>$$ min[(y_1 - _1 x_1 - _2 x_1)^2 + (y_2 - _1 x_2 - _2 x_2)^2 + ( |_1| + |_2|)]</p>
+<p>$$</p>
+<p>One way to demonstrate that these solutions are not unique is to make a geometric argument. To make things easier, we’ll use the alternate form of Lasso constraints, namely: <span class="math inline">\(|\hat\beta_1| + |\hat\beta_2| &lt; s\)</span>. If we were to plot these constraints, they take the familiar shape of a diamond centered at the origin (0, 0).</p>
+<p>Next we’ll consider the squared optimization constraint, namely:</p>
+<p><span class="math display">\[
+(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2
+\]</span>xuan</p>
+<p>Using the facts we were given regarding the equivalence of many of the variables, we can simplify down to the following optimization:</p>
+<p><span class="math display">\[
+min\ 2[y_1 - (\hat\beta_1 + \hat\beta_2 )x_1]^2
+\]</span> Taking the derivative of this with respect to <span class="math inline">\(\hat\beta_1 + \hat\beta_2\)</span> and setting it equal to zero, we get</p>
+<p>$$ = 0 <a href="-x_1">y_1 - (_1 + _2 )x_1</a> = 0</p>
+<p>$$</p>
+<p><span class="math display">\[
+y_1 - (\hat\beta_1 + \hat\beta_2 )x_1 = 0
+\]</span> $$ _1 + _2 = y_1/x_1</p>
+<p>$$ This optimization problem has a minimum at <span class="math inline">\(\hat\beta_1 +\hat\beta_2 = y_1/x_1\)</span>, which defines a line parallel to one edge of the Lasso-diamond <span class="math inline">\(\hat\beta_1 + \hat\beta_2 =s\)</span> or <span class="math inline">\(\hat\beta_1 + \hat\beta_2 = -s\)</span>.</p>
+<p>As <span class="math inline">\(\hat\beta_1\)</span> and <span class="math inline">\(\hat\beta_2\)</span> vary along the line <span class="math inline">\(\hat\beta_1 +\hat\beta_2 = y_1/x_1\)</span>, these contours touch the Lasso-diamond edge <span class="math inline">\(\hat\beta_1 + \hat\beta_2 =s\)</span> or <span class="math inline">\(\hat\beta_1 + \hat\beta_2 = -s\)</span> at different points. As a result, the entire edge <span class="math inline">\(\hat\beta_1 + \hat\beta_2 =s\)</span> or <span class="math inline">\(\hat\beta_1 + \hat\beta_2 = -s\)</span> is a potential solution to the Lasso optimization problem.</p>
+<p>Thus, the Lasso coefficients are not unique. The general form of solution can be given by two line segments:</p>
+<p>$$ _1 + _2 = s; _1 ; _2 ; _1 + _2 = -s; _1 ; _2 </p>
+<p>$$</p>
+</section>
 </section>
 <section id="isl-exercise-6.6.11-30pts" class="level2" data-number="8">
 <h2 data-number="8" class="anchored" data-anchor-id="isl-exercise-6.6.11-30pts"><span class="header-section-number">8</span> ISL Exercise 6.6.11 (30pts)</h2>
@@ -3300,12 +3786,18 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
+<section id="answer-8" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="answer-8"><span class="header-section-number">8.1</span> Answer:</h3>
+</section>
 </section>
 <section id="bonus-question-20pts" class="level2" data-number="9">
 <h2 data-number="9" class="anchored" data-anchor-id="bonus-question-20pts"><span class="header-section-number">9</span> Bonus question (20pts)</h2>
 <p>Consider a linear regression, fit by least squares to a set of training data <span class="math inline">\((x_1, y_1), \ldots, (x_N,  y_N)\)</span> drawn at random from a population. Let <span class="math inline">\(\hat \beta\)</span> be the least squares estimate. Suppose we have some test data <span class="math inline">\((\tilde{x}_1, \tilde{y}_1), \ldots, (\tilde{x}_M, \tilde{y}_M)\)</span> drawn at random from the same population as the training data. If <span class="math inline">\(R_{\text{train}}(\beta) = \frac{1}{N} \sum_{i=1}^N (y_i - \beta^T x_i)^2\)</span> and <span class="math inline">\(R_{\text{test}}(\beta) = \frac{1}{M} \sum_{i=1}^M (\tilde{y}_i - \beta^T \tilde{x}_i)^2\)</span>. Show that <span class="math display">\[
 \operatorname{E}[R_{\text{train}}(\hat{\beta})] &lt; \operatorname{E}[R_{\text{test}}(\hat{\beta})].
 \]</span></p>
+<section id="answer-9" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="answer-9"><span class="header-section-number">9.1</span> Answer:</h3>
+</section>
 </section>
 
 </main>
