@@ -321,10 +321,8 @@ $\sum_{j=1}^{p}|\beta_j| \le s$
 for a particular value of $s$. For parts (a) through (e), indicate which
 of i. through v. is correct. Justify your answer.
 __(a)__ As we increase s from 0, the training RSS will:
-i. Increase initially, and then eventually start decreasing in an
-inverted U shape.
-ii. Decrease initially, and then eventually start increasing in a
-U shape.
+i. Increase initially, and then eventually start decreasing in an inverted U shape.
+ii. Decrease initially, and then eventually start increasing in a U shape.
 iii. Steadily increase.
 iv. Steadily decrease.
 v. Remain constant.
@@ -361,9 +359,49 @@ by definition independent of the model. Therefore it is independent of the value
 of s.
 
 ## ISL Exercise 6.6.4 (10pts)
+Suppose we estimate the regression coefficients in a linear regression model by 
+minimizing
+
+$$
+\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2 + 
+\lambda\sum_{j=1}^{p}\beta_j^2
+
+$$
+for a particular value of !. For parts (a) through (e), indicate which of i. 
+through v. is correct. Justify your answer.
+__(a)__ As we increase ! from 0, the training RSS will:
+i. Increase initially, and then eventually start decreasing in an inverted U shape.
+ii. Decrease initially, and then eventually start increasing in a U shape.
+iii. Steadily increase.
+iv. Steadily decrease.
+v. Remain constant.
+### Answer: iii. Steadily increase.
+When $\lambda = 0$, we have the standard partial least squares. As λ→∞, we are 
+applying a shrinking penalty which is small when βj is close to zero and 
+therefore shrinks $\beta_j$ close to zero. As $\lambda$ increases, the bias 
+increases and thus we should see a steady increase in the training RSS.
+
+__(b)__ Repeat (a) for test RSS.
+### Answer: ii. Decrease initially, and then eventually start increasing in a U shape.
+As we increase $\lambda$, we'll see an increase in bias but a decrease in 
+variance up until a point where the coefficients are shrunk too. At the end of 
+the scale when $\lambda\rightarrow\infty$, we approach the null model. Therefore 
+we should see an initial decrease in the test RSS up to a point, then an 
+increase in the test RSS.
 
 
-### Answer:
+__(c)__ Repeat (a) for variance.
+### Answer: iv. Steadily decrease.
+As we constrain the coefficients we see the variance steadily decrease.
+
+
+__(d)__ Repeat (a) for (squared) bias.
+### Answer: iii. Steadily increase.
+As we constrain the coefficients we see a steady increase in the bias.
+
+__(e)__ Repeat (a) for the irreducible error.
+### Answer: v. Remain constant.
+The irreducible error is independent of the model and therefore is a constant.
 
 ## ISL Exercise 6.6.5 (10pts)
 
