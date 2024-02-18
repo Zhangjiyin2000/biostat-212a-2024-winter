@@ -268,7 +268,8 @@ considers every possible model with k predictors.
 __(b)__ Which of the three models with k predictors has the smallest test RSS?
 ### Answer:
 Providing an accurate assessment is challenging based on the information 
-available. When n is relatively small compared to p, the best subset might 
+available. Best subset may have the smallest test RSS because it considers more 
+models. However when n is relatively small compared to p, the best subset might 
 experience overfitting. Additionally, the other two methods could accidentally 
 select a model that performs better on the test set.
 
@@ -277,55 +278,87 @@ i. The predictors in the k-variable model identified by forward stepwise are a
 subset of the predictors in the (k+1)-variable model identified by forward 
 stepwise selection.
 ### Answer: TRUE
-
+In each step, forward stepwise augments with one additional predictor, hence the 
+statement is true.
 
 ii. The predictors in the k-variable model identified by backward stepwise are a 
 subset of the predictors in the (k + 1)-variable model identified by backward 
 stepwise selection.
 ### Answer: TRUE
-
+In each step the backward stepwise the least useful predictor is removed, hence 
+the answer is true.
 
 iii. The predictors in the k-variable model identified by backward stepwise are 
 a subset of the predictors in the (k + 1)-variable model identified by forward 
 stepwise selection.
 ### Answer: FALSE
-In backward stepwise selection, the algorithm starts with the full set of 
-predictors and iteratively removes the least significant predictor until the 
-desired number of predictors is reached. In forward stepwise selection, the 
-algorithm starts with an empty set and adds predictors one by one based on their 
-significance.
+Forward and backward stepwise are independent functions, thus the above 
+statement is false.
 
 
 iv. The predictors in the k-variable model identified by forward stepwise are a 
 subset of the predictors in the (k+1)-variable model identified by backward 
 stepwise selection.
 ### Answer: FALSE
-Likewise, in forward stepwise selection, the algorithm starts with an empty set
-and adds predictors one by one based on their significance. In backward stepwise
-selection, the algorithm starts with the full set of predictors and iteratively
-removes the least significant predictor until the desired number of predictors 
-is reached.
+Forward and backward stepwise are independent functions, thus the above 
+statement is false.
 
 
 v. The predictors in the k-variable model identified by best subset are a subset 
 of the predictors in the (k + 1)-variable model identified by best subset 
 selection.
 ### Answer: FALSE
-In best subset selection, the k-variable model identified does not necessarily 
-have predictors that are a strict subset of the (k + 1)-variable model. In best 
-subset selection, models of different sizes (with different numbers of 
-predictors) are considered, and the best model for each size is chosen based on 
-some criteria (e.g., minimizing the sum of squared errors). This means that the 
-predictors in the k-variable model might not be a strict subset of the 
-predictors in the (k + 1)-variable model. The algorithm evaluates all possible 
-combinations of predictors and selects the best model for each size 
-independently, so the selected predictors can vary between models of different 
-sizes.
+Best subset chooses the best model for each k, therefore the above statement is 
+false.
 
 ## ISL Exercise 6.6.3 (10pts)
+Suppose we estimate the regression coefficients in a linear regression
+model by minimizing
+
+$\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2$ subject to 
+$\sum_{j=1}^{p}|\beta_j| \le s$
+
+for a particular value of $s$. For parts (a) through (e), indicate which
+of i. through v. is correct. Justify your answer.
+__(a)__ As we increase s from 0, the training RSS will:
+i. Increase initially, and then eventually start decreasing in an
+inverted U shape.
+ii. Decrease initially, and then eventually start increasing in a
+U shape.
+iii. Steadily increase.
+iv. Steadily decrease.
+v. Remain constant.
+### Answer: iv. Steadily decrease.
+When s=0, we have the intercept, which is the expected mean value. As s→∞, we 
+end up with a standard least squares. We should see a decrease in the bias and 
+therefore a steady decrease in the training RSS as we approach a least squares 
+regression.
+
+__(b)__ Repeat (a) for test RSS.
+### Answer: ii. Decrease initially, and then eventually start increasing in a U shape.
+When s=0, we have a very high test RSS. As s increases we see the model start to 
+fit the test data and thus the test RSS decreases. However there is a point 
+where the variance starts to increase faster than the bias is decreasing and it 
+starts to overfit the training data. At this point the test RSS will start to 
+increase again.
+
+__(c)__ Repeat (a) for variance.
+### Answer: iii. Steadily increase.
+When s=0 the variance is very low. As s increases, the variance steadily 
+increases as the model starts to fit the training data.
+
+__(d)__ Repeat (a) for (squared) bias.
+### Answer: iv. Steadily decrease.
+When s=0, the bias is very high, and as s increases the bias steadily decreases 
+as the model fits the training data better.
 
 
-### Answer:
+__(e)__ Repeat (a) for the irreducible error.
+
+### Answer: v. Remain constant.
+The irreducible error is a constant and does not change as s increases and it is 
+by definition independent of the model. Therefore it is independent of the value 
+of s.
 
 ## ISL Exercise 6.6.4 (10pts)
 
