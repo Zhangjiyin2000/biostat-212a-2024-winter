@@ -172,6 +172,86 @@ small compared to the tenth percentile value.
 
 Show that in the case of linear model with Gaussian errors, maximum likelihood and least squares are the same thing, and $C_p$ and AIC are equivalent.
 
+### Answer:
+The linear model with Gaussian errors is given by
+$$
+Y = X\beta + \epsilon
+$$
+where $\epsilon \sim N(0, \sigma^2)$.
+
+The likelihood function is given by
+$$
+L(\beta, \sigma^2) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(Y - X\beta)^T*(Y - X\beta)}{2\sigma^2}\right)
+$$
+
+The log-likelihood function is given by
+$$
+\ell(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)
+$$
+
+Compute the derivative of $\beta$ with respect to $(Y - X\beta)^T*(Y - X\beta) $
+$$
+\begin{align*}
+\frac{\partial}{\partial\beta} (Y - X\beta)^T*(Y - X\beta) 
+&= \frac{\partial}{\partial\beta} (Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta) \\
+&= \frac{\partial}{\partial\beta} (Y^TY - 2\beta^TX^TY - \beta^TX^TX\beta) \\
+&= -2 X^T Y +2 X^T X\beta \\
+&= -2 X^T (Y - X \beta) \\
+
+\end{align*}
+$$
+Then compute the derivative of $\beta$ with respect to $l(\beta,\sigma^2)$
+$$
+\begin{align*}
+\frac{\partial}{\partial\beta} \ell(\beta, \sigma^2) 
+&= \frac{\partial}{\partial\beta} \left(-\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) \\
+&= \frac{\partial}{\partial\beta} \left(-\frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) \\
+&= \frac{1}{2\sigma^2} 2 X^T (Y - X \beta) \\
+
+\end{align*}
+$$
+Set the derivative of $\beta$ with respect to $l(\beta,\sigma^2)$ to zero
+$$
+\begin{align*}
+\frac{1}{2\sigma^2} 2 X^T (Y - X \beta) &= 0 \\
+X^T (Y - X \beta) &= 0 \\
+X^T Y - X^T X \beta &= 0 \\
+X^T Y = X^T X \beta \\
+
+\end{align*}
+$$
+Solve for $\beta$
+$$
+\hat\beta = (X^TX)^{-1}X^TY
+$$
+and as for $\sigma^2$
+$$
+\sigma^2 = \frac{1}{n} (Y - X\beta)^2
+$$
+
+The least squares estimates are given by
+$$
+\hat\beta = (X^TX)^{-1}X^TY
+$$
+Therefore, maximum likelihood and least squares are the same thing.
+
+Here is  $C_p$
+$$
+C_p = \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right)
+$$
+and here is AIC
+$$
+\begin{align*}
+AIC &= -2logL + 2d \\
+&= -2\left(-\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) + 2d \\
+&= n\log(2\pi) + n\log(\sigma^2) +\frac{1}{\sigma^2} (Y - X\beta)^T*(Y - X\beta) + 2d \\
+\end{align*}
+$$
+where $\text{RSS} = \sum_{i=1}^n (y_i - x_i^T\hat\beta)^2$ and $d$ is the number of predictors.
+
+Therefore, $C_p$ and AIC are equivalent.
+
+
 ## ISL Exercise 6.6.1 (10pts)
 
 ## ISL Exercise 6.6.3 (10pts)
