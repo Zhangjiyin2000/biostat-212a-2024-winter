@@ -237,7 +237,10 @@ Therefore, maximum likelihood and least squares are the same thing.
 
 Here is  $C_p$
 $$
-C_p = \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right)
+\begin{align*}
+C_p &= \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right) \\
+&= \frac{1}{n} \left((Y - X\beta)^T*(Y - X\beta) + 2d\hat\sigma^2\right) \\
+\end{align*}
 $$
 and here is AIC
 $$
@@ -253,14 +256,89 @@ Therefore, $C_p$ and AIC are equivalent.
 
 
 ## ISL Exercise 6.6.1 (10pts)
+We perform best subset, forward stepwise, and backward stepwise selection on a 
+single data set. For each approach, we obtain p + 1 models, containing 0, 1, 2, 
+..., p predictors. Explain your answers:
+__(a)__ Which of the three models with k predictors has the smallest training 
+RSS?
+### Answer:
+The model with best subset selection has the smallest training RSS since it 
+considers every possible model with k predictors. 
+
+__(b)__ Which of the three models with k predictors has the smallest test RSS?
+### Answer:
+Providing an accurate assessment is challenging based on the information 
+available. When n is relatively small compared to p, the best subset might 
+experience overfitting. Additionally, the other two methods could accidentally 
+select a model that performs better on the test set.
+
+__(c)__ True or False:
+i. The predictors in the k-variable model identified by forward stepwise are a 
+subset of the predictors in the (k+1)-variable model identified by forward 
+stepwise selection.
+### Answer: TRUE
+
+
+ii. The predictors in the k-variable model identified by backward stepwise are a 
+subset of the predictors in the (k + 1)-variable model identified by backward 
+stepwise selection.
+### Answer: TRUE
+
+
+iii. The predictors in the k-variable model identified by backward stepwise are 
+a subset of the predictors in the (k + 1)-variable model identified by forward 
+stepwise selection.
+### Answer: FALSE
+In backward stepwise selection, the algorithm starts with the full set of 
+predictors and iteratively removes the least significant predictor until the 
+desired number of predictors is reached. In forward stepwise selection, the 
+algorithm starts with an empty set and adds predictors one by one based on their 
+significance.
+
+
+iv. The predictors in the k-variable model identified by forward stepwise are a 
+subset of the predictors in the (k+1)-variable model identified by backward 
+stepwise selection.
+### Answer: FALSE
+Likewise, in forward stepwise selection, the algorithm starts with an empty set
+and adds predictors one by one based on their significance. In backward stepwise
+selection, the algorithm starts with the full set of predictors and iteratively
+removes the least significant predictor until the desired number of predictors 
+is reached.
+
+
+v. The predictors in the k-variable model identified by best subset are a subset 
+of the predictors in the (k + 1)-variable model identified by best subset 
+selection.
+### Answer: FALSE
+In best subset selection, the k-variable model identified does not necessarily 
+have predictors that are a strict subset of the (k + 1)-variable model. In best 
+subset selection, models of different sizes (with different numbers of 
+predictors) are considered, and the best model for each size is chosen based on 
+some criteria (e.g., minimizing the sum of squared errors). This means that the 
+predictors in the k-variable model might not be a strict subset of the 
+predictors in the (k + 1)-variable model. The algorithm evaluates all possible 
+combinations of predictors and selects the best model for each size 
+independently, so the selected predictors can vary between models of different 
+sizes.
 
 ## ISL Exercise 6.6.3 (10pts)
 
+
+### Answer:
+
 ## ISL Exercise 6.6.4 (10pts)
+
+
+### Answer:
 
 ## ISL Exercise 6.6.5 (10pts)
 
+
+### Answer:
+
 ## ISL Exercise 6.6.11 (30pts)
+
 
 You must follow the [typical machine learning paradigm](https://ucla-econ-425t.github.io/2023winter/slides/06-modelselection/workflow_lasso.html) to compare _at least_ 3 methods: least squares, lasso, and ridge. Report final results as
 
@@ -271,9 +349,15 @@ You must follow the [typical machine learning paradigm](https://ucla-econ-425t.g
 | Lasso | | | |
 | ... | | | |
 
+
+### Answer:
+
 ## Bonus question (20pts)
 
 Consider a linear regression, fit by least squares to a set of training data $(x_1, y_1), \ldots, (x_N,  y_N)$ drawn at random from a population. Let $\hat \beta$ be the least squares estimate. Suppose we have some test data $(\tilde{x}_1, \tilde{y}_1), \ldots, (\tilde{x}_M, \tilde{y}_M)$ drawn at random from the same population as the training data. If $R_{\text{train}}(\beta) = \frac{1}{N} \sum_{i=1}^N (y_i - \beta^T x_i)^2$ and $R_{\text{test}}(\beta) = \frac{1}{M} \sum_{i=1}^M (\tilde{y}_i - \beta^T \tilde{x}_i)^2$. Show that
 $$
 \operatorname{E}[R_{\text{train}}(\hat{\beta})] < \operatorname{E}[R_{\text{test}}(\hat{\beta})].
 $$
+
+
+### Answer:
