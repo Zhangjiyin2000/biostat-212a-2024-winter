@@ -428,8 +428,20 @@ $$
 
 where $\text{RSS} = (Y - X\beta)^T*(Y - X\beta)$ and $d$ is the number of predictors.
 
+Since $n\log(2\pi)$ and $n\log(\sigma^2)$ are constants and thus the model selection depends only on the term $\frac{1}{\sigma^2} RSS$ and $2d$. We ingore the constant terms and rewrite AIC:
 
-Therefore, $C_p$ and AIC are equivalent.
+$$
+AIC \approx  \frac{1}{\sigma^2} RSS + 2d
+$$
+
+Multiply $AIC$ by $\frac{\sigma^2}{n}$:
+
+$$
+\frac{\sigma^2}{n} * AIC = \frac{\sigma^2}{n} (\frac{1}{\sigma^2} RSS + 2d)= \frac{1}{n} (RSS + 2d\sigma^2) = C_p
+
+$$
+
+Therefore, $C_p$ and AIC are equivalent in the function of model selection.
 
 
 ## ISL Exercise 6.6.1 (10pts)
@@ -591,7 +603,7 @@ $$
 for a particular value of !. For parts (a) through (e), indicate which of i. 
 through v. is correct. Justify your answer.
 
-__(a)__ As we increase ! from 0, the training RSS will:
+__(a)__ As we increase $\lambda$ from 0, the training RSS will:
 
 i. Increase initially, and then eventually start decreasing in an inverted U shape.
 
@@ -810,20 +822,6 @@ $$
 
 We will now try to predict per capita crime rate in the Boston data set.
 
-(a) Try out some of the regression methods explored in this chapter,
-such as best subset selection, the lasso, ridge regression, and
-PCR. Present and discuss results for the approaches that you
-consider.
-
-(b) Propose a model (or set of models) that seem to perform well on
-this data set, and justify your answer. Make sure that you are
-evaluating model performance using validation set error, crossvalidation,
-or some other reasonable alternative, as opposed to
-using training error.
-
-(c) Does your chosen model involve all of the features in the data
-set? Why or why not?
-
 You must follow the [typical machine learning paradigm](https://ucla-econ-425t.github.io/2023winter/slides/06-modelselection/workflow_lasso.html) to compare _at least_ 3 methods: least squares, lasso, and ridge. Report final results as
 
 | Method | CV RMSE | Test RMSE |
@@ -1019,14 +1017,6 @@ cv_rmse_ls
 
 
 
-```{r}
-# Assuming .metric contains metric names and .estimate contains corresponding values
-ggplot(cv_metrics, aes(x = n, y = .estimator, group = .metric, color = .metric)) +
-  geom_line() +
-  labs(title = "Cross-Validation Results for Least Squares Model", x = "Number of Folds", y = "RMSE") +
-  theme_minimal()
-```
-
 Ridge:
 ```{r}
 ridge_fit %>%
@@ -1072,7 +1062,6 @@ cv_rmse_lasso
 
 **Show the top 5 models ($\lambda$values):**
 
-Least squares:
 
 Ridge:
 ```{r}
@@ -1086,8 +1075,6 @@ lasso_fit %>%
 ```
 
 **Select the best model:**
-
-Least squares:
 
 Ridge:
 ```{r}
@@ -1105,8 +1092,6 @@ best_lasso
 **Finalize our model:**
 
 Final workflow:
-
-Least squares:
 
 Ridge:
 ```{r}
@@ -1181,7 +1166,7 @@ test_rmse_lasso
 # Create a tibble to store the results
 results_df <- tibble(
   Method = c("LS", "Ridge", "Lasso"),
-  CV_RMSE = c(mean(cv_rmse_ls), mean(cv_rmse_ridge), mean(cv_rmse_lasso)),
+  CV_RMSE = c(cv_rmse_ls, mean(cv_rmse_ridge), mean(cv_rmse_lasso)),
   Test_RMSE = c(test_rmse_ls, test_rmse_ridge, test_rmse_lasso)
 )
 
@@ -1198,12 +1183,28 @@ $$
 $$
 **Answer:**
 
-Assuming that $N > M$, as the training data set is larger than the test data set.
+First, based on the linearity of expectation, we have
+
+$$
+E[\frac{1}{k}\sum_{i=1}^{k}(x_i)] = \frac{E[x_1]+ ...+E[x_k]}{k} = \frac{k*E[x_1]}{k} = E[x_1]
+$$
+
+Then, we have
+$$
+\begin{align*}
+E[R_{\text{train}}(\hat{\beta})] = E[( y_1-\hat\beta^T  x_1)^2]
+\end{align*}
+$$
 
 $$
 \begin{align*}
-\operatorname{E}[R_{\text{train}}(\hat{\beta})] &= \operatorname{E}\left[\frac{1}{N} \sum_{i=1}^N (y_i - \hat{\beta}^T x_i)^2\right] \\
-&= \frac{1}{N} \sum_{i=1}^N \operatorname{E}\left[(y_i - \hat{\beta}^T x_i)^2\right] \\
-&= \operatorname{E}\left[(y_1 - \hat{\beta}^T x_1)^2\right]
+E[R_{\text{test}}(\hat{\beta})] = E[(\tilde y_1-\hat\beta^T \tilde x_1)^2]
 \end{align*}
 $$
+Therefore, there is nothing to do with M and N.
+
+
+
+
+
+
