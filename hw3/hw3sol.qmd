@@ -23,30 +23,153 @@ knitr:
 ---
 
 ## ISL Exercise 5.4.2 (10pts)
-Suppose that we use some statistical learning method to make a prediction for 
-the response Y for a particular value of the predictor X. Carefully describe 
-how we might estimate the standard deviation of our prediction.
 
-### Answer:
-We can estimate the standard deviation of our prediction by using the bootstrap 
-method. We can obtain repeated random samples from the original data set without 
-generating additional samples. To elucidate, we perform sampling with replacement 
-B times and then find the corresponding estimates and the standard deviation of 
-those B estimates by using the following equation:
+We will now derive the probability that a given observation is part of a 
+bootstrap sample. Suppose that we obtain a bootstrap sample from a set of $n$ 
+observations.
 
-$$
-SE_B(\hat\alpha) = \sqrt{\frac{1}{B-1} \sum_{r=1}^B (\hat\alpha^{*r} - \frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r'})^2}
+__(a)__ What is the probability that the first bootstrap observation is $not$ 
+the $j$th observation from the original sample? Justify your
+answer.
 
-$$
-where $\hat\alpha^{*r}$ is the estimate of $\hat\alpha$ for the $r^{th}$ 
-bootstrap sample and $\frac{1}{B} \sum_{r=1}^B \hat\alpha^{*r'}$ is the average 
-of the B estimates.
+**Answer:** $1−1/n$
+
+The probability that the first bootstrap observation is not the $j$th 
+observation from the original sample is $1−1/n$. This is because there are $n$ 
+samples, and we are equally likely to pick each observation when taking our 
+first bootstrap observation.
+
+__(b)__ What is the probability that the second bootstrap observation is not the 
+$j$th observation from the original sample?
+
+**Answer:** $1−1/n$
+
+Since bootstrap observations are sampled from the original observations with 
+replacement, the probability that the second bootstrap observation is not the 
+$j$th observation from the original sample is again $1−1/n$.
+
+__(c)__ Argue that the probability that the $j$th observation is $not$ in the
+bootstrap sample is $(1 − 1/n)^n$.
+
+**Answer:**
+
+The probability that the $j$th observation is not in the bootstrap sample is
+$(1 − 1/n)^n$. This is because the probability that the $j$th observation is
+not in the bootstrap sample is the same as the probability that the first
+bootstrap observation is not the $j$th observation from the original sample,
+multiplied by the probability that the second bootstrap observation is not the
+$j$th observation from the original sample, and so on, up to the $n$th
+bootstrap observation. Since each of these probabilities is $(1 − 1/n)$, the
+probability that the $j$th observation is not in the bootstrap sample is
+$(1 − 1/n)^n$. Note that we are multiplying probabilities because sampling with 
+replacement means that the individual bootstrap observations in the bootstrap 
+sample are independent.
+
+
+
+__(d)__ When $n$ = 5, what is the probability that the $j$th observation is in 
+the bootstrap sample?
+
+**Answer:**
+
+When $n$ = 5, the probability that the $j$th observation is in the bootstrap
+sample is $1−(1−1/5)^5 = 1−(4/5)^5 = 1−0.32768 = 0.67232$. 
+
+__(e)__ When $n$ = 100, what is the probability that the $j$th observation is in 
+the bootstrap sample?
+
+**Answer:**
+
+When $n$ = 100, the probability that the $j$th observation is in the bootstrap
+sample is $1−(1−1/100)^100 = 1−(99/100)^100 = 1−0.36603 = 0.63397$.
+
+__(f)__ When $n$ = 10,000, what is the probability that the $j$th observation is 
+in the bootstrap sample?
+
+**Answer:**
+
+When $n$ = 10,000, the probability that the $j$th observation is in the
+bootstrap sample is $1−(1−1/10000)^10000 = 1−(9999/10000)^10000 = 1−0.36769 = 0.63231$.
+
+__(g)__ Create a plot that displays, for each integer value of $n$ from 1 to 
+100,000, the probability that the $j$th observation is in the bootstrap sample. 
+Comment on what you observe.
+
+**Answer:**
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+n <- 1:10000
+
+data.frame(n, prob_j_included = 1 - (1 - 1/n)^n) %>%
+  ggplot(aes(x = n, y = prob_j_included)) + 
+  geom_line(size = 1) + 
+  geom_hline(aes(yintercept = 1 - 1/exp(1), col = "1 - 1/e")) +
+  scale_color_manual(values = c("blue")) + 
+  labs(title = "Bootstrap Sampling - Probability obs.j included", y = "Probability", col = "")
+
+```
+
+We are seeing a visual representation of 
+$\lim_\limits{n\to \infty} {1−(1−\frac{1}{n})^n}=1−\frac1e≈0.632$, which is the 
+reason why this is sometimes called the 0.632 rule in bootstrapping. This is the 
+probability that the $j$th observation is in the bootstrap sample.
+
+__(h)__ We will now investigate numerically the probability that a bootstrap
+sample of size $n$ = 100 contains the $j$th observation. Here $j$ = 4. We 
+repeatedly create bootstrap samples, and each time we record whether or not the 
+fourth observation is contained in the bootstrap sample.
+
+```{r}
+store <- rep(NA, 10000)
+for (i in 1:10000) {
+  store[i] <- sum(sample(1:100, rep = TRUE) == 4) > 0
+}
+mean(store)
+```
+
+Comment on the results obtained.
+
+**Answer:**
+
+To relate this to previous questions, we created 10,000 separate bootstrap 
+samples, sampling from the set of integers from 1 to 100: {1,2,…,100}.
+
+In the `sample()` function there is a `size` argument, and since we did not set this, 
+the default behavior is to sample n = 100 items from the vector x = 1:100. 
+`replace = TRUE` means that this sampling occurs with replacement. This occurs 
+for each $i$ in the loop.
+
+`sum(sample(1:100, rep=TRUE) == 4) > 0` checks whether any of these 100 items 
+were the number 4 (this is our $j$ in previous questions), returning TRUE if 4
+was within the sample, else FALSE.
+
+Assigning this to `store[i]` stores this result in the $i$th position of the 
+vector store. This happens 10,000 times (one for each bootstrap sample), so the 
+resulting store vector is logical with 10,000 entries.
+
+At the end the mean is calculated, which for a logical vector will give the 
+proportion of the 10,000 entries in store that had value `TRUE = 1`.
+
+We create 10,000 bootstrap samples from {1,2,…,100}, then calculate what 
+proportion of them contained 4.
+
+Wwe would expect that if we perform many many bootstrap samples, around 63.2% of 
+them will contain the number 4.
+
+The simulation shows that this seems to hold true, with 63.2% containing 4.
 
 ## ISL Exercise 5.4.9 (20pts)
+
 We will now consider the Boston housing data set, from the ISLR2 library.
+
 __(a)__ Based on this data set, provide an estimate for the population
 mean of `medv`. Call this estimate $\hat\mu$.
-### Answer:
+
+**Answer:**
+
 ```{r}
 library(ISLR2)
 data("Boston")
@@ -60,17 +183,23 @@ result.
 Hint: We can compute the standard error of the sample mean by dividing the 
 sample standard deviation by the square root of the
 number of observations.
-### Answer:
+
+**Answer:**
+
 ```{r}
 se_mu_hat <- sd(Boston$medv) / sqrt(length(Boston$medv))
-cat("The estimate of the standard error of the population mean of medv is:", 
-    se_mu_hat, 
-    "\n")
+cat(
+  "The estimate of the standard error of the population mean of medv is:",
+  se_mu_hat,
+  "\n"
+)
 ```
 
 __(c)__ Now estimate the standard error of $\hat\mu$ using the bootstrap. How
 does this compare to your answer from (b)?
-### Answer:
+
+**Answer:**
+
 ```{r}
 # Install the boot package if you haven't already
 # install.packages("boot")
@@ -81,8 +210,8 @@ library(boot)
 ```{r}
 set.seed(1)
 boot.fn <- function(data, index) {
-    mu <- mean(data[index])
-    return (mu)
+  mu <- mean(data[index])
+  return(mu)
 }
 boot(Boston$medv, boot.fn, 1000)
 ```
@@ -95,17 +224,21 @@ interval for the mean of medv. Compare it to the results obtained using
 t.test(Boston$medv).
 Hint: You can approximate a 95 % confidence interval using the formula 
 $[\hat\mu - 2SE(\hat\mu), \hat\mu + 2SE(\hat\mu)]$.
-### Answer:
+
+**Answer:**
+
 ```{r}
 # Calculate the 95% confidence interval using the formula
-standard_error = 0.4106622
+standard_error <- 0.4106622
 ci_lower <- mu_hat - 2 * standard_error
 ci_upper <- mu_hat + 2 * standard_error
-cat("The 95% confidence interval for the mean of medv is: (", 
-    ci_lower, 
-    ",", 
-    ci_upper, 
-    ")\n")
+cat(
+  "The 95% confidence interval for the mean of medv is: (",
+  ci_lower,
+  ",",
+  ci_upper,
+  ")\n"
+)
 ```
 
 ```{r}
@@ -117,27 +250,34 @@ The bootstrap confidence interval is very close to the one provided by the
 
 __(e)__ Based on this data set, provide an estimate, $\hat\mu_{med}$, for the 
 median value of `medv` in the population.
-### Answer:
+
+**Answer:**
+
 ```{r}
 mu_med_hat <- median(Boston$medv)
-cat("The estimate for the median value of medv in the population is:", 
-    mu_med_hat, 
-    "\n")
+cat(
+  "The estimate for the median value of medv in the population is:",
+  mu_med_hat,
+  "\n"
+)
 ```
 
 __(f)__ We now would like to estimate the standard error of $\hat\mu_{med}$. 
 Unfortunately, there is no simple formula for computing the standard error of 
 the median. Instead, estimate the standard error of the median using the 
 bootstrap. Comment on your findings.
-### Answer:
+
+**Answer:**
+
 ```{r}
 set.seed(1)
 boot.fn <- function(data, index) {
-    mu_med <- median(data[index])
-    return (mu_med)
+  mu_med <- median(data[index])
+  return(mu_med)
 }
 boot(Boston$medv, boot.fn, 1000)
 ```
+
 We get an estimated median value of 21.2 which is equal to the value obtained in 
 (e), with a standard error of 0.3778075 which is relatively small compared to 
 median value.
@@ -145,22 +285,28 @@ median value.
 __(g)__ Based on this data set, provide an estimate for the tenth percentile
 of `medv` in Boston census tracts. Call this quantity $\hat\mu_{0.1}$. (You can 
 use the quantile() function.)
-### Answer:
+
+**Answer:**
+
 ```{r}
 mu_0.1_hat <- quantile(Boston$medv, 0.1)
-cat("The estimate for the tenth percentile of medv in the population is:", 
-    mu_0.1_hat, 
-    "\n")
+cat(
+  "The estimate for the tenth percentile of medv in the population is:",
+  mu_0.1_hat,
+  "\n"
+)
 ```
 
 __(h)__ Use the bootstrap to estimate the standard error of $\hat\mu_{0.1}$. 
 Comment on your findings.
-### Answer:
+
+**Answer:**
+
 ```{r}
 set.seed(1)
 boot.fn <- function(data, index) {
-    mu_0.1 <- quantile(data[index], 0.1)
-    return (mu_0.1)
+  mu_0.1 <- quantile(data[index], 0.1)
+  return(mu_0.1)
 }
 boot(Boston$medv, boot.fn, 1000)
 ```
@@ -174,12 +320,14 @@ small compared to the tenth percentile value.
 
 Show that in the case of linear model with Gaussian errors, maximum likelihood and least squares are the same thing, and $C_p$ and AIC are equivalent.
 
-### Answer:
+**Answer:**
+
 The linear model with Gaussian errors is given by
 
 $$
 Y = X\beta + \epsilon
 $$
+
 where $\epsilon \sim N(0, \sigma^2)$.
 
 The likelihood function is given by
@@ -195,6 +343,7 @@ $$
 $$
 
 Compute the derivative of $\beta$ with respect to $(Y - X\beta)^T*(Y - X\beta) $
+
 $$
 \begin{align*}
 \frac{\partial}{\partial\beta} (Y - X\beta)^T*(Y - X\beta) 
@@ -202,9 +351,9 @@ $$
 &= \frac{\partial}{\partial\beta} (Y^TY - 2\beta^TX^TY - \beta^TX^TX\beta) \\
 &= -2 X^T Y +2 X^T X\beta \\
 &= -2 X^T (Y - X \beta) \\
-
 \end{align*}
 $$
+
 Then compute the derivative of $\beta$ with respect to $l(\beta,\sigma^2)$
 
 $$
@@ -213,9 +362,9 @@ $$
 &= \frac{\partial}{\partial\beta} \left(-\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) \\
 &= \frac{\partial}{\partial\beta} \left(-\frac{1}{2\sigma^2} (Y - X\beta)^T*(Y - X\beta)\right) \\
 &= \frac{1}{2\sigma^2} 2 X^T (Y - X \beta) \\
-
 \end{align*}
 $$
+
 Set the derivative of $\beta$ with respect to $l(\beta,\sigma^2)$ to zero
 
 $$
@@ -224,14 +373,15 @@ $$
 X^T (Y - X \beta) &= 0 \\
 X^T Y - X^T X \beta &= 0 \\
 X^T Y = X^T X \beta \\
-
 \end{align*}
 $$
+
 Solve for $\beta$
 
 $$
 \hat\beta = (X^TX)^{-1}X^TY
 $$
+
 and as for $\sigma^2$
 
 $$
@@ -243,6 +393,7 @@ The least squares estimates are given by
 $$
 \hat\beta = (X^TX)^{-1}X^TY
 $$
+
 Therefore, maximum likelihood and least squares are the same thing.
 
 Here is $C_p$
@@ -252,6 +403,18 @@ $$
 C_p &= \frac{1}{n} \left(\text{RSS} + 2d\hat\sigma^2\right) \\
 \end{align*}
 $$
+Assume that 
+
+$$
+\hat\sigma^2 = \sigma^2
+$$
+
+Therefore, 
+
+$$
+C_p = \frac{1}{n} \left(\text{RSS} + 2d\sigma^2\right) 
+$$
+
 and here is AIC
 
 $$
@@ -262,8 +425,8 @@ AIC &= -2logL + 2d \\
 &= n\log(2\pi) + n\log(\sigma^2) +\frac{1}{\sigma^2} RSS + 2d \\
 \end{align*}
 $$
-where $\text{RSS} = (Y - X\beta)^T*(Y - X\beta)$ and $d$ is the number of predictors.
 
+where $\text{RSS} = (Y - X\beta)^T*(Y - X\beta)$ and $d$ is the number of predictors.
 
 
 Therefore, $C_p$ and AIC are equivalent.
@@ -277,14 +440,14 @@ single data set. For each approach, we obtain p + 1 models, containing 0, 1, 2,
 __(a)__ Which of the three models with k predictors has the smallest training 
 RSS?
 
-### Answer:
+**Answer:**
 
 The model with best subset selection has the smallest training RSS since it 
 considers every possible model with k predictors. 
 
 __(b)__ Which of the three models with k predictors has the smallest test RSS?
 
-### Answer:
+**Answer:**
 
 Providing an accurate assessment is challenging based on the information 
 available. Best subset may have the smallest test RSS because it considers more 
@@ -298,7 +461,9 @@ i. The predictors in the k-variable model identified by forward stepwise are a
 subset of the predictors in the (k+1)-variable model identified by forward 
 stepwise selection.
 
-### Answer: TRUE
+**Answer:**
+
+TRUE
 
 In each step, forward stepwise augments with one additional predictor, hence the 
 statement is true.
@@ -307,7 +472,9 @@ ii. The predictors in the k-variable model identified by backward stepwise are a
 subset of the predictors in the (k + 1)-variable model identified by backward 
 stepwise selection.
 
-### Answer: TRUE
+**Answer:**
+
+TRUE
 
 In each step the backward stepwise the least useful predictor is removed, hence 
 the answer is true.
@@ -316,7 +483,9 @@ iii. The predictors in the k-variable model identified by backward stepwise are
 a subset of the predictors in the (k + 1)-variable model identified by forward 
 stepwise selection.
 
-### Answer: FALSE
+**Answer:**
+
+FALSE
 
 Forward and backward stepwise are independent functions, thus the above 
 statement is false.
@@ -326,7 +495,9 @@ iv. The predictors in the k-variable model identified by forward stepwise are a
 subset of the predictors in the (k+1)-variable model identified by backward 
 stepwise selection.
 
-### Answer: FALSE
+**Answer:**
+
+FALSE
 
 Forward and backward stepwise are independent functions, thus the above 
 statement is false.
@@ -336,12 +507,15 @@ v. The predictors in the k-variable model identified by best subset are a subset
 of the predictors in the (k + 1)-variable model identified by best subset 
 selection.
 
-### Answer: FALSE
+**Answer:**
+
+FALSE
 
 Best subset chooses the best model for each k, therefore the above statement is 
 false.
 
 ## ISL Exercise 6.6.3 (10pts)
+
 Suppose we estimate the regression coefficients in a linear regression
 model by minimizing
 
@@ -363,7 +537,7 @@ iv. Steadily decrease.
 
 v. Remain constant.
 
-### Answer: iv. Steadily decrease.
+**Answer:** iv. Steadily decrease.
 
 When s=0, we have the intercept, which is the expected mean value. As s→∞, we 
 end up with a standard least squares. We should see a decrease in the bias and 
@@ -372,7 +546,7 @@ regression.
 
 __(b)__ Repeat (a) for test RSS.
 
-### Answer: ii. Decrease initially, and then eventually start increasing in a U shape.
+**Answer:** ii. Decrease initially, and then eventually start increasing in a U shape.
 
 When s=0, we have a very high test RSS. As s increases we see the model start to 
 fit the test data and thus the test RSS decreases. However there is a point 
@@ -382,14 +556,14 @@ increase again.
 
 __(c)__ Repeat (a) for variance.
 
-### Answer: iii. Steadily increase.
+**Answer:** iii. Steadily increase.
 
 When s=0 the variance is very low. As s increases, the variance steadily 
 increases as the model starts to fit the training data.
 
 __(d)__ Repeat (a) for (squared) bias.
 
-### Answer: iv. Steadily decrease.
+**Answer:** iv. Steadily decrease.
 
 When s=0, the bias is very high, and as s increases the bias steadily decreases 
 as the model fits the training data better.
@@ -397,13 +571,14 @@ as the model fits the training data better.
 
 __(e)__ Repeat (a) for the irreducible error.
 
-### Answer: v. Remain constant.
+**Answer:** v. Remain constant.
 
 The irreducible error is a constant and does not change as s increases and it is 
 by definition independent of the model. Therefore it is independent of the value 
 of s.
 
 ## ISL Exercise 6.6.4 (10pts)
+
 Suppose we estimate the regression coefficients in a linear regression model by 
 minimizing
 
@@ -412,6 +587,7 @@ $$
 \lambda\sum_{j=1}^{p}\beta_j^2
 
 $$
+
 for a particular value of !. For parts (a) through (e), indicate which of i. 
 through v. is correct. Justify your answer.
 
@@ -427,7 +603,7 @@ iv. Steadily decrease.
 
 v. Remain constant.
 
-### Answer: iii. Steadily increase.
+**Answer:** iii. Steadily increase.
 
 When $\lambda = 0$, we have the standard partial least squares. As λ→∞, we are 
 applying a shrinking penalty which is small when βj is close to zero and 
@@ -436,7 +612,8 @@ increases and thus we should see a steady increase in the training RSS.
 
 __(b)__ Repeat (a) for test RSS.
 
-### Answer: ii. Decrease initially, and then eventually start increasing in a U shape.
+**Answer:** ii. Decrease initially, and then eventually start increasing in a U shape.
+
 As we increase $\lambda$, we'll see an increase in bias but a decrease in 
 variance up until a point where the coefficients are shrunk too. At the end of 
 the scale when $\lambda\rightarrow\infty$, we approach the null model. Therefore 
@@ -446,20 +623,20 @@ increase in the test RSS.
 
 __(c)__ Repeat (a) for variance.
 
-### Answer: iv. Steadily decrease.
+**Answer:** iv. Steadily decrease.
 
 As we constrain the coefficients we see the variance steadily decrease.
 
 
 __(d)__ Repeat (a) for (squared) bias.
 
-### Answer: iii. Steadily increase.
+**Answer:** iii. Steadily increase.
 
 As we constrain the coefficients we see a steady increase in the bias.
 
 __(e)__ Repeat (a) for the irreducible error.
 
-### Answer: v. Remain constant.
+**Answer:** v. Remain constant.
 
 The irreducible error is independent of the model and therefore is a constant.
 
@@ -477,32 +654,32 @@ lasso model is zero: $\hat\beta_0 = 0$.
 
 __(a)__ Write out the ridge regression optimization problem in this setting.
 
-### Answer:
+**Answer:**
 
 In general, the ridge regression optimization problem is given by
 
 $$
 min[\sum_{i=1}^{n}(y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij})^2 + \lambda\sum_{j=1}^{p}\beta_j^2]
 $$
+
 In this case, $\hat\beta_0 = 0$ and $n=p=2$. So, the optimization simplifies to
 
 $$
 min[(y_1 - \hat\beta_1 x_{11} - \hat\beta_2 x_{12})^2 + (y_2 - \hat\beta_1 x_{21} - \hat\beta_2 x_{22})^2 + \lambda( \hat\beta_1^2 + \hat\beta_2^2)]
-
 $$
+
 We know the following: $x_{11} = x_{12}$, so we'll call that $x_1$, and 
 $x_{21} = x_{22}$, so we'll call that $x_2$. Plugging in the values we know, we
 get 
 
 $$
 min[(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2 + \lambda( \hat\beta_1^2 + \hat\beta_2^2)]
-
-
 $$
+
 __(b)__ Argue that in this setting, the ridge coefficient estimates satisfy 
 $\hat\beta_1=\hat\beta_2$.
 
-### Answer:
+**Answer:**
 
 Taking the partial derivatives of the ridge regression optimization problem with
 respect to $\hat\beta_1$ and $\hat\beta_2$ and setting them equal to zero, we
@@ -511,9 +688,11 @@ get
 $$
 \frac{\partial}{\partial\hat\beta_1} = 0 \rightarrow -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) + 2\lambda\hat\beta_1 = 0
 $$
+
 $$
  -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) = - 2\lambda\hat\beta_1 
 $$
+
 and
 
 $$
@@ -523,21 +702,24 @@ $$
 $$
 -2x_1(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1) - 2x_2(y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2) = - 2\lambda \hat\beta_2
 $$
+
 Since the left side of the equations are the same, we can assume the right sides 
 equal each other, so
 
 $$
 - 2\lambda\hat\beta_1 = - 2\lambda\hat\beta_2
 $$
+
 Thus, we can conclude that in this setting, the ridge coefficient estimates
 
 $$
 \hat\beta_1 = \hat\beta_2
 $$
 
+
 __(c)__ Write out the lasso optimization problem in this setting.
 
-### Answer:
+**Answer:**
 
 The lasso optimization problem is given by
 
@@ -549,7 +731,6 @@ In this case, $\hat\beta_0 = 0$ and $n=p=2$. So, the optimization simplifies to
 
 $$
 min[(y_1 - \hat\beta_1 x_{11} - \hat\beta_2 x_{12})^2 + (y_2 - \hat\beta_1 x_{21} - \hat\beta_2 x_{22})^2 + \lambda( |\hat\beta_1| + |\hat\beta_2|)]
-
 $$
 
 We know the following: $x_{11} = x_{12}$, so we'll call that $x_1$, and
@@ -558,20 +739,18 @@ get
 
 $$
 min[(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2 + \lambda( |\hat\beta_1| + |\hat\beta_2|)]
-
 $$
 
 __(d)__ Argue that in this setting, the lasso coefficients $\hat\beta_1$ and 
 $\hat\beta_2$ are not unique—in other words, there are many possible solutions
 to the optimization problem in (c). Describe these solutions.
 
-### Answer:
+**Answer:**
 
 The lasso optimization problem is given by
 
 $$
 min[(y_1 - \hat\beta_1 x_1 - \hat\beta_2 x_1)^2 + (y_2 - \hat\beta_1 x_2 - \hat\beta_2 x_2)^2 + \lambda( |\hat\beta_1| + |\hat\beta_2|)]
-
 $$
 
 One way to demonstrate that these solutions are not unique is to make a 
@@ -592,22 +771,22 @@ variables, we can simplify down to the following optimization:
 $$
 min\ 2[y_1 - (\hat\beta_1 + \hat\beta_2 )x_1]^2
 $$
+
 Taking the derivative of this with respect to $\hat\beta_1 + \hat\beta_2$ and
 setting it equal to zero, we get
 
 $$
 \frac{\partial}{\partial(\hat\beta_1 + \hat\beta_2)} = 0 \rightarrow 2[y_1 - (\hat\beta_1 + \hat\beta_2 )x_1](-x_1) = 0
-
-
 $$
 
 $$
 y_1 - (\hat\beta_1 + \hat\beta_2 )x_1 = 0
 $$
-$$
-\hat\beta_1 + \hat\beta_2 = y_1/x_1
 
 $$
+\hat\beta_1 + \hat\beta_2 = y_1/x_1
+$$
+
 This optimization problem has a minimum at $\hat\beta_1 +\hat\beta_2 = y_1/x_1$, 
 which defines a line parallel to one edge of the Lasso-diamond 
 $\hat\beta_1 + \hat\beta_2 =s$ or $\hat\beta_1 + \hat\beta_2 = -s$.
@@ -635,11 +814,13 @@ We will now try to predict per capita crime rate in the Boston data set.
 such as best subset selection, the lasso, ridge regression, and
 PCR. Present and discuss results for the approaches that you
 consider.
+
 (b) Propose a model (or set of models) that seem to perform well on
 this data set, and justify your answer. Make sure that you are
 evaluating model performance using validation set error, crossvalidation,
 or some other reasonable alternative, as opposed to
 using training error.
+
 (c) Does your chosen model involve all of the features in the data
 set? Why or why not?
 
@@ -652,42 +833,48 @@ You must follow the [typical machine learning paradigm](https://ucla-econ-425t.g
 | Lasso | | | |
 | ... | | | |
 
-Explore the data:
+**Answer:**
+
+**Explore the data:**
 ```{r}
 library(ISLR2)
 data("Boston")
 library(tidymodels)
 library(tidyverse)
 boston <- as_tibble(Boston) %>% print(width = Inf)
-
 ```
+
 ```{r}
 # Numerical summaries
 summary(boston)
 ```
+
 ```{r}
 library(GGally)
 # Graphical summaries
 ggpairs(
-  data = boston, 
-  mapping = aes(alpha = 0.25), 
+  data = boston,
+  mapping = aes(alpha = 0.25),
   lower = list(continuous = "smooth")
-  ) + 
+) +
   labs(title = "Boston Data")
 ```
+
 ```{r}
 boston <- boston %>%
   drop_na()
 dim(boston)
 ```
-Initial split into test and non-test sets:
+
+**Initial split into test and non-test sets:**
+
 ```{r}
 # For reproducibility
 set.seed(425)
 data_split <- initial_split(
-  boston, 
+  boston,
   prop = 0.75
-  )
+)
 
 boston_other <- training(data_split)
 dim(boston_other)
@@ -696,125 +883,149 @@ dim(boston_other)
 ```{r}
 boston_test <- testing(data_split)
 dim(boston_test)
-
 ```
 
-Recipe (R):
+**Recipe (R):**
 ```{r}
-norm_recipe <- 
+norm_recipe <-
   recipe(
-    crim ~ ., 
+    crim ~ .,
     data = boston_other
   ) %>%
   # create traditional dummy variables
   step_dummy(all_nominal()) %>%
   # zero-variance filter
-  step_zv(all_predictors()) %>% 
+  step_zv(all_predictors()) %>%
   # center and scale numeric data
   step_normalize(all_predictors()) %>%
   # estimate the means and standard deviations
   prep(training = boston_other, retain = TRUE)
 norm_recipe
-
 ```
+
 **Model:**
+
 Least squares:
 ```{r}
-lm_mod <- 
-  linear_reg() %>% 
+lm_mod <-
+  linear_reg() %>%
   set_engine("lm")
 lm_mod
 ```
 Ridge:
 ```{r}
-ridge_mod <- 
+ridge_mod <-
   # mixture = 0 (ridge), mixture = 1 (lasso)
-  linear_reg(penalty = tune(), mixture = 0) %>% 
+  linear_reg(penalty = tune(), mixture = 0) %>%
   set_engine("glmnet")
 ridge_mod
 ```
 Lasso:
 ```{r}
-lasso_mod <- 
+lasso_mod <-
   # mixture = 0 (ridge), mixture = 1 (lasso)
-  linear_reg(penalty = tune(), mixture = 1.0) %>% 
+  linear_reg(penalty = tune(), mixture = 1.0) %>%
   set_engine("glmnet")
 lasso_mod
 ```
 
 
 **Workflow (R):**
+
 Least squares:
 ```{r}
-ls_lr_wf <- 
+ls_lr_wf <-
   workflow() %>%
   add_model(lm_mod) %>%
   add_recipe(norm_recipe)
 ls_lr_wf
-
 ```
 Ridge:
 ```{r}
-ridge_lr_wf <- 
+ridge_lr_wf <-
   workflow() %>%
   add_model(ridge_mod) %>%
   add_recipe(norm_recipe)
 ridge_lr_wf
-
 ```
 Lasso:
 ```{r}
-lasso_lr_wf <- 
+lasso_lr_wf <-
   workflow() %>%
   add_model(lasso_mod) %>%
   add_recipe(norm_recipe)
 lasso_lr_wf
-
 ```
+
 **Tuning grid:**
 ```{r}
 lambda_grid <-
   grid_regular(penalty(range = c(-2, 3), trans = log10_trans()), levels = 100)
 lambda_grid
-
 ```
+
 **Cross-validation (CV):**
 ```{r}
 set.seed(250)
 folds <- vfold_cv(boston_other, v = 10)
 folds
+```
+
+**Fit cross-validation:**
+
+least squares:
+```{r}
+# Fit the cross-validation
+cv_results <- ls_lr_wf %>%
+  fit_resamples(resamples = folds, metrics = metric_set(rmse))
+
+# Summarize the results
+summary(cv_results)
 
 ```
-**Fit cross-validation:**
-least squares:
 
 Ridge:
 ```{r}
-ridge_fit <- 
+ridge_fit <-
   ridge_lr_wf %>%
   tune_grid(
     resamples = folds,
     grid = lambda_grid
-    )
+  )
 ridge_fit
-
 ```
 
 Lasso:
 ```{r}
-lasso_fit <- 
+lasso_fit <-
   lasso_lr_wf %>%
   tune_grid(
     resamples = folds,
     grid = lambda_grid
-    )
+  )
 lasso_fit
-
 ```
 
 **Visualize CV criterion:**
-Least squares:
 
+Least squares:
+```{r}
+# Collect cross-validation metrics
+cv_metrics <- collect_metrics(cv_results)
+cv_metrics
+cv_rmse_ls <- cv_metrics$mean
+cv_rmse_ls
+```
+
+
+
+```{r}
+# Assuming .metric contains metric names and .estimate contains corresponding values
+ggplot(cv_metrics, aes(x = n, y = .estimator, group = .metric, color = .metric)) +
+  geom_line() +
+  labs(title = "Cross-Validation Results for Least Squares Model", x = "Number of Folds", y = "RMSE") +
+  theme_minimal()
+```
 
 Ridge:
 ```{r}
@@ -822,20 +1033,19 @@ ridge_fit %>%
   collect_metrics() %>%
   print(width = Inf) %>%
   filter(.metric == "rmse") %>%
-  ggplot(mapping = aes(x = penalty, y = mean)) + 
-  geom_point() + 
-  geom_line() + 
-  labs(x = "Penalty", y = "CV RMSE") + 
+  ggplot(mapping = aes(x = penalty, y = mean)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Penalty", y = "CV RMSE") +
   scale_x_log10(labels = scales::label_number())
-
 ```
 
 ```{r}
 cv_rmse_ridge <- ridge_fit %>%
-                  collect_metrics() %>%
-                  print(width = Inf) %>%
-                  filter(.metric == "rmse") %>%
-                  pull(mean)
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "rmse") %>%
+  pull(mean)
 cv_rmse_ridge
 ```
 Lasso:
@@ -844,80 +1054,65 @@ lasso_fit %>%
   collect_metrics() %>%
   print(width = Inf) %>%
   filter(.metric == "rmse") %>%
-  ggplot(mapping = aes(x = penalty, y = mean)) + 
-  geom_point() + 
-  geom_line() + 
-  labs(x = "Penalty", y = "CV RMSE") + 
+  ggplot(mapping = aes(x = penalty, y = mean)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Penalty", y = "CV RMSE") +
   scale_x_log10(labels = scales::label_number())
-
 ```
 
 ```{r}
 cv_rmse_lasso <- lasso_fit %>%
-                 collect_metrics() %>%
-                 print(width = Inf) %>%
-                 filter(.metric == "rmse") %>%
-                 pull(mean)
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "rmse") %>%
+  pull(mean)
 cv_rmse_lasso
 ```
 
-Show the top 5 models ($\lambda$values):
-Least squares:
-```{r}
-ls_fit %>%
-  show_best("rmse")
+**Show the top 5 models ($\lambda$values):**
 
-```
+Least squares:
+
 Ridge:
 ```{r}
 ridge_fit %>%
   show_best("rmse")
-
 ```
 Lasso:
 ```{r}
 lasso_fit %>%
   show_best("rmse")
-
 ```
+
 **Select the best model:**
-Least squares:
-```{r}
-best_ls <- ls_fit %>%
-  select_best("rmse")
-best_ls
 
-```
+Least squares:
+
 Ridge:
 ```{r}
 best_ridge <- ridge_fit %>%
   select_best("rmse")
 best_ridge
-
 ```
 Lasso:
 ```{r}
 best_lasso <- lasso_fit %>%
   select_best("rmse")
 best_lasso
-
 ```
+
 **Finalize our model:**
+
 Final workflow:
 
 Least squares:
-```{r}
-ls_final_wf <- ls_lr_wf %>%
-  finalize_workflow(best_ls)
-ls_final_wf
 
-```
 Ridge:
 ```{r}
 ridge_final_wf <- ridge_lr_wf %>%
   finalize_workflow(best_ridge)
 ridge_final_wf
-
 ```
 
 Lasso:
@@ -925,75 +1120,79 @@ Lasso:
 lasso_final_wf <- lasso_lr_wf %>%
   finalize_workflow(best_lasso)
 lasso_final_wf
-
 ```
-Fit the whole training set, then predict the test cases
+
+**Fit the whole training set, then predict the test cases**
 
 Least squares:
 ```{r}
-ls_final_fit <- 
-  ls_final_wf %>%
+ls_final_fit <-
+  ls_lr_wf %>%
   last_fit(data_split)
-ls_final_fit
 
 ```
+
 Ridge:
 ```{r}
-ridge_final_fit <- 
+ridge_final_fit <-
   ridge_final_wf %>%
   last_fit(data_split)
 ridge_final_fit
 ```
 Lasso:
 ```{r}
-lasso_final_fit <- 
+lasso_final_fit <-
   lasso_final_wf %>%
   last_fit(data_split)
 lasso_final_fit
-
 ```
 **Test metrics:**
+
 Least square:
 ```{r}
 ls_final_fit %>% collect_metrics()
-test_rmse_ls <- ls_final_fit %>% collect_metrics() %>% filter(.metric == "rmse") %>% select(.estimate)
+test_rmse_ls <- ls_final_fit %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(.estimate)
 test_rmse_ls
-
 ```
+
 Ridge:
 ```{r}
 ridge_final_fit %>% collect_metrics()
-test_rmse_ridge <- ridge_final_fit %>% collect_metrics() %>% filter(.metric == "rmse") %>% pull(.estimate)
+test_rmse_ridge <- ridge_final_fit %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(.estimate)
 test_rmse_ridge
 ```
 Lasso:
 ```{r}
 lasso_final_fit %>% collect_metrics()
-test_rmse_lasso <- lasso_final_fit %>% collect_metrics() %>% filter(.metric == "rmse") %>% pull(.estimate)
+test_rmse_lasso <- lasso_final_fit %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(.estimate)
 test_rmse_lasso
 ```
 
 ```{r}
-# Assuming you have vectors or data frames with CV RMSE and Test RMSE for each method
-#cv_rmse_ls <- ...
-#test_rmse_ls <- ...
-
-
 # Create a tibble to store the results
 results_df <- tibble(
-  Method = c( "Ridge", "Lasso"),
-  CV_RMSE = c(mean(cv_rmse_ridge), mean(cv_rmse_lasso)),
-  Test_RMSE = c( test_rmse_ridge, test_rmse_lasso)
+  Method = c("LS", "Ridge", "Lasso"),
+  CV_RMSE = c(mean(cv_rmse_ls), mean(cv_rmse_ridge), mean(cv_rmse_lasso)),
+  Test_RMSE = c(test_rmse_ls, test_rmse_ridge, test_rmse_lasso)
 )
 
 # Print the final results
 print(results_df)
-
 ```
 
 ## Bonus question (20pts)
 
 Consider a linear regression, fit by least squares to a set of training data $(x_1, y_1), \ldots, (x_N,  y_N)$ drawn at random from a population. Let $\hat \beta$ be the least squares estimate. Suppose we have some test data $(\tilde{x}_1, \tilde{y}_1), \ldots, (\tilde{x}_M, \tilde{y}_M)$ drawn at random from the same population as the training data. If $R_{\text{train}}(\beta) = \frac{1}{N} \sum_{i=1}^N (y_i - \beta^T x_i)^2$ and $R_{\text{test}}(\beta) = \frac{1}{M} \sum_{i=1}^M (\tilde{y}_i - \beta^T \tilde{x}_i)^2$. Show that
+
 $$
 \operatorname{E}[R_{\text{train}}(\hat{\beta})] < \operatorname{E}[R_{\text{test}}(\hat{\beta})].
 $$
@@ -1008,5 +1207,3 @@ $$
 &= \operatorname{E}\left[(y_1 - \hat{\beta}^T x_1)^2\right]
 \end{align*}
 $$
-
-
