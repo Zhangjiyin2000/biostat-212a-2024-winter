@@ -438,7 +438,6 @@ Multiply $AIC$ by $\frac{\sigma^2}{n}$:
 
 $$
 \frac{\sigma^2}{n} * AIC = \frac{\sigma^2}{n} (\frac{1}{\sigma^2} RSS + 2d)= \frac{1}{n} (RSS + 2d\sigma^2) = C_p
-
 $$
 
 Therefore, $C_p$ and AIC are equivalent in the function of model selection.
@@ -473,9 +472,7 @@ i. The predictors in the k-variable model identified by forward stepwise are a
 subset of the predictors in the (k+1)-variable model identified by forward 
 stepwise selection.
 
-**Answer:**
-
-TRUE
+**Answer:** TRUE
 
 In each step, forward stepwise augments with one additional predictor, hence the 
 statement is true.
@@ -484,9 +481,7 @@ ii. The predictors in the k-variable model identified by backward stepwise are a
 subset of the predictors in the (k + 1)-variable model identified by backward 
 stepwise selection.
 
-**Answer:**
-
-TRUE
+**Answer:** TRUE
 
 In each step the backward stepwise the least useful predictor is removed, hence 
 the answer is true.
@@ -495,33 +490,25 @@ iii. The predictors in the k-variable model identified by backward stepwise are
 a subset of the predictors in the (k + 1)-variable model identified by forward 
 stepwise selection.
 
-**Answer:**
-
-FALSE
+**Answer:** FALSE
 
 Forward and backward stepwise are independent functions, thus the above 
 statement is false.
-
 
 iv. The predictors in the k-variable model identified by forward stepwise are a 
 subset of the predictors in the (k+1)-variable model identified by backward 
 stepwise selection.
 
-**Answer:**
-
-FALSE
+**Answer:** FALSE
 
 Forward and backward stepwise are independent functions, thus the above 
 statement is false.
-
 
 v. The predictors in the k-variable model identified by best subset are a subset 
 of the predictors in the (k + 1)-variable model identified by best subset 
 selection.
 
-**Answer:**
-
-FALSE
+**Answer:** FALSE
 
 Best subset chooses the best model for each k, therefore the above statement is 
 false.
@@ -537,7 +524,7 @@ $\sum_{j=1}^{p}|\beta_j| \le s$
 for a particular value of $s$. For parts (a) through (e), indicate which
 of i. through v. is correct. Justify your answer.
 
-__(a)__ As we increase s from 0, the training RSS will:
+__(a)__ As we increase $\lambda$ from 0, the training RSS will:
 
 i. Increase initially, and then eventually start decreasing in an inverted U shape.
 
@@ -1237,12 +1224,14 @@ Therefore, we have
 $$
 \operatorname{E}[R_{\text{train}}(\hat{\beta})] = \operatorname{E}[R_{\text{test}}(\tilde{\beta})].
 $$
+
+which is the minimum.
+
 When we replace $\tilde\beta$ with $\hat\beta$, we cannot get the minimum value. 
 Therefore, we have
 
 $$
-\operatorname{E}[R_{\text{train}}(\hat{\beta})] < \operatorname{E}[R_{\text{test}}(\hat{\beta})].
-
+\operatorname{E}[R_{\text{train}}(\hat{\beta})] < \operatorname{E}[R_{\text{test}}(\hat{\beta})]
 $$
 
 
