@@ -822,6 +822,12 @@ $$
 
 We will now try to predict per capita crime rate in the Boston data set.
 
+__(a)__ Try out some of the regression methods explored in this chapter, such as 
+best subset selection, the lasso, ridge regression, and PCR. Present and discuss 
+results for the approaches that you consider.
+
+**Answer:**
+
 You must follow the [typical machine learning paradigm](https://ucla-econ-425t.github.io/2023winter/slides/06-modelselection/workflow_lasso.html) to compare _at least_ 3 methods: least squares, lasso, and ridge. Report final results as
 
 | Method | CV RMSE | Test RMSE |
@@ -834,6 +840,7 @@ You must follow the [typical machine learning paradigm](https://ucla-econ-425t.g
 **Answer:**
 
 **Explore the data:**
+
 ```{r}
 library(ISLR2)
 data("Boston")
@@ -884,6 +891,7 @@ dim(boston_test)
 ```
 
 **Recipe (R):**
+
 ```{r}
 norm_recipe <-
   recipe(
@@ -956,6 +964,7 @@ lasso_lr_wf
 ```
 
 **Tuning grid:**
+
 ```{r}
 lambda_grid <-
   grid_regular(penalty(range = c(-2, 3), trans = log10_trans()), levels = 100)
@@ -963,6 +972,7 @@ lambda_grid
 ```
 
 **Cross-validation (CV):**
+
 ```{r}
 set.seed(250)
 folds <- vfold_cv(boston_other, v = 10)
@@ -1014,8 +1024,6 @@ cv_metrics
 cv_rmse_ls <- cv_metrics$mean
 cv_rmse_ls
 ```
-
-
 
 Ridge:
 ```{r}
@@ -1174,6 +1182,35 @@ results_df <- tibble(
 print(results_df)
 ```
 
+__(b)__ Propose a model (or set of models) that seem to perform well on this 
+data set, and justify your answer. Make sure that you are evaluating model 
+performance using validation set error, crossvalidation, or some other 
+reasonable alternative, as opposed to using training error.
+
+**Answer:**
+
+Based on the results of test RMSE, the Ridge model seems to perform the best on 
+this data set since it has the lowest test RMSE. Because the Ridge model uses a
+penalty term to shrink the coefficients of the features towards zero, it is
+better at handling multicollinearity than the Lasso model. The Lasso model
+performs the worst on this data set, which is likely due to the fact that it
+selects a subset of the features and sets the coefficients of the other features
+to zero. The least squares model performs better than the Lasso model, but not as
+well as the Ridge model. This is likely due to the fact that the least squares
+model does not use a penalty term to shrink the coefficients of the features
+towards zero, and therefore is not as good at handling multicollinearity as the
+Ridge model.
+
+__(c)__ Does your chosen model involve all of the features in the data set? Why 
+or why not?
+
+**Answer:**
+
+The chosen model does not involve all of the features in the data set. The Ridge
+model involves a subset of the features in the data set. This is because the
+Ridge model uses a penalty term to shrink the coefficients of the features
+towards zero.
+
 ## Bonus question (20pts)
 
 Consider a linear regression, fit by least squares to a set of training data $(x_1, y_1), \ldots, (x_N,  y_N)$ drawn at random from a population. Let $\hat \beta$ be the least squares estimate. Suppose we have some test data $(\tilde{x}_1, \tilde{y}_1), \ldots, (\tilde{x}_M, \tilde{y}_M)$ drawn at random from the same population as the training data. If $R_{\text{train}}(\beta) = \frac{1}{N} \sum_{i=1}^N (y_i - \beta^T x_i)^2$ and $R_{\text{test}}(\beta) = \frac{1}{M} \sum_{i=1}^M (\tilde{y}_i - \beta^T \tilde{x}_i)^2$. Show that
@@ -1183,25 +1220,30 @@ $$
 $$
 **Answer:**
 
-First, based on the linearity of expectation, we have
+Since the training data and test data are drawn at random from the same 
+population. Therefore, we have
 
 $$
-E[\frac{1}{k}\sum_{i=1}^{k}(x_i)] = \frac{E[x_1]+ ...+E[x_k]}{k} = \frac{k*E[x_1]}{k} = E[x_1]
+min_\beta\  \frac{1}{N} \sum_{i=1}^N (y_i - \beta^T x_i)^2 = min\  \frac{1}{M} \sum_{i=1}^M (\tilde{y}_i - \beta^T \tilde{x}_i)^2
 $$
 
-Then, we have
-$$
-\begin{align*}
-E[R_{\text{train}}(\hat{\beta})] = E[( y_1-\hat\beta^T  x_1)^2]
-\end{align*}
-$$
+Thus, we have
 
 $$
-\begin{align*}
-E[R_{\text{test}}(\hat{\beta})] = E[(\tilde y_1-\hat\beta^T \tilde x_1)^2]
-\end{align*}
+\hat \beta = \tilde \beta
 $$
-Therefore, there is nothing to do with M and N.
+Therefore, we have
+
+$$
+\operatorname{E}[R_{\text{train}}(\hat{\beta})] = \operatorname{E}[R_{\text{test}}(\tilde{\beta})].
+$$
+When we replace $\tilde\beta$ with $\hat\beta$, we cannot get the minimum value. 
+Therefore, we have
+
+$$
+\operatorname{E}[R_{\text{train}}(\hat{\beta})] < \operatorname{E}[R_{\text{test}}(\hat{\beta})].
+
+$$
 
 
 
