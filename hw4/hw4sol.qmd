@@ -75,12 +75,117 @@ ggplot(df_melted, aes(x = p, y = value, color = variable), na.rm = true) +
 
 ## ISL Exercise 8.4.4 (10pts)
 
+This question relates to the plots in Figure 8.14.
+
+![](figure8_14.png)
+
+FIGURE 8.14. Left: A partition of the predictor space corresponding to Exercise
+4a. Right: A tree corresponding to Exercise 4b.
+
+
+__(a)__ Sketch the tree corresponding to the partition of the predictor
+space illustrated in the left-hand panel of Figure 8.14. The numbers
+inside the boxes indicate the mean of $Y$ within each region.
+
+**Answer:**
+
+
+__(b)__ Create a diagram similar to the left-hand panel of Figure 8.14,
+using the tree illustrated in the right-hand panel of the same
+figure. You should divide up the predictor space into the correct
+regions, and indicate the mean for each region.
+
+**Answer:**
+
+
 ## ISL Exercise 8.4.5 (10pts)
+
+Suppose we produce ten bootstrapped samples from a data set containing red and 
+green classes. We then apply a classification tree to each bootstrapped sample 
+and, for a specific value of X, produce 10 estimates of $P$(Class is Red|X):
+
+0.1, 0.15, 0.2, 0.2, 0.55, 0.6, 0.6, 0.65, 0.7, and 0.75.
+
+There are two common ways to combine these results together into a single class 
+prediction. One is the majority vote approach discussed in this chapter. The 
+second approach is to classify based on the average probability. In this 
+example, what is the final classification under each of these two approaches?
+
+**Answer:**
+
+Generate the data:
+
+```{r}
+estimates <- c(0.1, 0.15, 0.2, 0.2, 0.55, 0.6, 0.6, 0.65, 0.7, 0.75)
+print(estimates)
+num_estimates <- length(estimates)
+cat('There are', num_estimates, 'estimates in total\n')
+```
+
+Assuming a decision threshold probability of 0.5
+
+```{r}
+p_threshold <- 0.5
+numRed <- sum(estimates >= p_threshold)
+numGreen <- sum(estimates < p_threshold)
+```
+
+For the majority vote approach:
+
+```{r}
+cat('Using the majority vote approach:\n')
+cat('The number of votes for class Red =', numRed, '\n')
+cat('The number of votes for class Green =', numGreen, '\n')
+if (numRed >= numGreen) {
+  cat('The assigned class is Red\n')
+} else {
+  cat('The assigned class is Green\n')
+}
+```
+For the average probability approach:
+
+```{r}
+cat('Using the average vote approach:\n')
+mean_estimate <- mean(estimates)
+cat('The mean estimate is', mean_estimate, '\n')
+if (mean_estimate >= p_threshold) {
+  cat('The assigned class is Red\n')
+} else {
+  cat('The assigned class is Green\n')
+}
+```
+
+Histogram with threshold, mean, and median lines:
+
+```{r}
+hist(estimates, breaks = 10, main = "Histogram of Estimates", xlab = "Estimates", col = "lightblue")
+abline(v = p_threshold, col = "black", lwd = 2)
+abline(v = mean_estimate, col = "red", lwd = 2)
+abline(v = median(estimates), col = "blue", lwd = 2)
+legend("topright", 
+       legend = c("Threshold", "Mean", "Median"), 
+       fill = c("black", "red", "blue"))
+
+```
+
 
 ## ISL Lab 8.3. `Boston` data set (30pts)
 
-Follow the machine learning workflow to train regression tree, random forest, and boosting methods for predicting `medv`. Evaluate out-of-sample performance on a test set.
+Follow the machine learning workflow to train regression tree, random forest, 
+and boosting methods for predicting `medv`. Evaluate out-of-sample performance 
+on a test set.
+
+**Answer:**
+
+
 
 ## ISL Lab 8.3 `Carseats` data set (30pts)
 
-Follow the machine learning workflow to train classification tree, random forest, and boosting methods for classifying `Sales <= 8` versus `Sales > 8`. Evaluate out-of-sample performance on a test set.
+Follow the machine learning workflow to train classification tree, random 
+forest, and boosting methods for classifying `Sales <= 8` versus `Sales > 8`. 
+Evaluate out-of-sample performance on a test set.
+
+**Answer:**
+
+
+
