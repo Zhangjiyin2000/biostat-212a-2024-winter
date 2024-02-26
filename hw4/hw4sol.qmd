@@ -1,7 +1,7 @@
 ---
 title: "Biostat 212a Homework 4"
 subtitle: "Due Mar. 5, 2024 @ 11:59PM"
-author: "YOUR NAME and UID"
+author: "Jiyin (Jenny) Zhang, UID: 606331859"
 date: today
 format:
   html:
@@ -24,6 +24,55 @@ knitr:
 
 ## ISL Exercise 8.4.3 (10pts)
 
+Consider the Gini index, classification error, and entropy in a simple 
+classification setting with two classes. Create a single plot that displays each 
+of these quantities as a function of $\hat p_{m1}$. The x-axis should display 
+$\hat p_{m1}$, ranging from 0 to 1, and the $y$-axis should display the value of 
+the Gini index, classification error, and entropy.
+
+Hint: In a setting with two classes, $\hat p_{m1}$ = 1 − $\hat p_{m2}$. You 
+could make this plot by hand, but it will be much easier to make in R.
+
+**Answer:**
+
+Create a data frame with $\hat p_{m1}$ ranging from 0 to 1, and calculate the 
+Gini index, classification error, and entropy. 
+
+```{r}
+library(ggplot2)
+p <- seq(0, 1, 0.01)
+df <- data.frame(
+  p = p,
+  gini = p * (1 - p) * 2,
+  entropy = -(p * log(p) + (1 - p) * log(1 - p)),
+  class_err = 1 - pmax(p, 1 - p)
+) 
+print(df, width = 200)
+```
+
+Melt the data frame for ggplot:
+
+```{r}
+library(reshape2)
+df_melted <- melt(df, id.vars = "p") |>
+  print(width = 200)
+```
+
+Then use `ggplot2` to plot the three quantities as a function of $\hat p_{m1}$.
+
+```{r}
+# Plot using ggplot
+ggplot(df_melted, aes(x = p, y = value, color = variable), na.rm = true) +
+  geom_line() +
+  labs(
+    title = "Gini index, classification error, and entropy",
+    subtitle = "as a function of p_hat",
+    x = expression(hat(p)),
+    y = "Quantities",
+    color = "Quantities"
+  )
+```
+
 ## ISL Exercise 8.4.4 (10pts)
 
 ## ISL Exercise 8.4.5 (10pts)
@@ -35,5 +84,3 @@ Follow the machine learning workflow to train regression tree, random forest, an
 ## ISL Lab 8.3 `Carseats` data set (30pts)
 
 Follow the machine learning workflow to train classification tree, random forest, and boosting methods for classifying `Sales <= 8` versus `Sales > 8`. Evaluate out-of-sample performance on a test set.
-
-
