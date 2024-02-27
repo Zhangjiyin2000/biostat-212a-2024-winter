@@ -89,6 +89,8 @@ inside the boxes indicate the mean of $Y$ within each region.
 
 **Answer:**
 
+![](q2_a.jpg)
+
 
 __(b)__ Create a diagram similar to the left-hand panel of Figure 8.14,
 using the tree illustrated in the right-hand panel of the same
@@ -97,6 +99,7 @@ regions, and indicate the mean for each region.
 
 **Answer:**
 
+![](q2_b.jpg)
 
 ## ISL Exercise 8.4.5 (10pts)
 
