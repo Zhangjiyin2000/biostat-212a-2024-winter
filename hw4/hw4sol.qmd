@@ -941,10 +941,200 @@ rf_fit
 
 ```
 
+Visualize CV results:
+
+```{r}
+rf_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  mutate(mtry = as.factor(mtry)) %>%
+  ggplot(mapping = aes(x = trees, y = mean, color = mtry)) +
+  # geom_point() + 
+  geom_line() + 
+  labs(x = "Num. of Trees", y = "CV AUC")
+
+```
+
+Show the top 5 models:
+
+```{r}
+rf_fit %>%
+  show_best("roc_auc")
+
+```
+
+Select the best model:
+
+```{r}
+best_rf <- rf_fit %>%
+  select_best("roc_auc")
+best_rf
+
+```
+**Finalize our model:**
+
+```{r}
+# Final workflow
+final_wf <- rf_wf %>%
+  finalize_workflow(best_rf)
+final_wf
+
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf %>%
+  last_fit(data_split)
+final_fit
+
+```
+
+```{r}
+# Test metrics
+final_fit %>% 
+  collect_metrics()
+
+```
 
 **boosting methods**
 
+**Recipe:**
 
+```{r}
+gb_recipe <- 
+  recipe(
+    Sales ~ ., 
+    data = Carseats_other
+  ) %>%
+  # mean imputation for Ca
+  #step_impute_mean(Ca) %>%
+  # mode imputation for Thal
+  #step_impute_mode(Thal) %>%
+  # create traditional dummy variables (necessary for xgboost)
+  step_dummy(all_nominal_predictors()) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # estimate the means and standard deviations
+  prep(training = Carseats_other, retain = TRUE)
+gb_recipe
+
+```
+
+**Model:**
+
+```{r}
+gb_mod <- 
+  boost_tree(
+    mode = "classification",
+    trees = 1000, 
+    tree_depth = tune(),
+    learn_rate = tune()
+  ) %>% 
+  set_engine("xgboost")
+gb_mod
+
+```
+**Workflow:**
+
+```{r}
+gb_wf <- workflow() %>%
+  add_recipe(gb_recipe) %>%
+  add_model(gb_mod)
+gb_wf
+```
+
+**Tuning grid:**
+
+```{r}
+param_grid <- grid_regular(
+  tree_depth(range = c(1L, 3L)),
+  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  levels = c(3, 10)
+  )
+param_grid
+```
+
+**Cross-validation:**
+
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(Carseats_other, v = 5)
+folds
+```
+
+Fit cross-validation:
+
+```{r}
+gb_fit <- gb_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = param_grid,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+gb_fit
+```
+
+Visualize CV results:
+
+```{r}
+gb_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  mutate(tree_depth = as.factor(tree_depth)) %>%
+  ggplot(mapping = aes(x = learn_rate, y = mean, color = tree_depth)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Learning Rate", y = "CV AUC") +
+  scale_x_log10()
+
+```
+
+Show the top 5 models.
+
+```{r}
+gb_fit %>%
+  show_best("roc_auc")
+
+```
+Select the best model.
+
+```{r}
+best_gb <- gb_fit %>%
+  select_best("roc_auc")
+best_gb
+
+```
+
+**Finalize our model:**
+
+```{r}
+# Final workflow
+final_wf <- gb_wf %>%
+  finalize_workflow(best_gb)
+final_wf
+
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf %>%
+  last_fit(data_split)
+final_fit
+
+```
+
+
+```{r}
+# Test metrics
+final_fit %>% 
+  collect_metrics()
+
+```
 
 
 
