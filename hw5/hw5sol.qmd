@@ -102,6 +102,29 @@ $$
 (1+X_1)^2 + (2−X_2)^2 = 4
 $$
 
+**Answer:**
+
+```{r}
+library(ggplot2)
+library(dplyr)
+# install.packages("ggforce")
+library(ggforce)
+# install.packages("latex2exp")
+library(latex2exp)
+ggplot() + 
+  geom_circle(data = data.frame(X1 = -1, X2 = 2, r = 2), 
+              aes(x0 = X1, y0 = X2, r = r), col = "mediumseagreen", size = 1) + 
+  scale_x_continuous(expand = c(0.01,0.01), limits = c(-3.5, 1.5)) + 
+  scale_y_continuous(expand = c(0.01,0.01), limits = c(-0.5, 4.5)) + 
+  labs(title = TeX(r'(Curve Plot: $(1 + X_1)^2 + (2 - X_2)^2 = 4$)'), 
+       x = TeX(r'($X_1$)'), 
+       y = TeX(r'($X_2$)')) + 
+  coord_fixed() +
+  geom_point(data = data.frame(X1 = -1, X2 = 2), aes(x = X1, y = X2), col = "red", size = 3)
+
+```
+
+
 __(b)__ On your sketch, indicate the set of points for which
 
 $$
@@ -118,8 +141,81 @@ $$
 
 **Answer:**
 
-![](sketch_q2a&b.jpg)
+```{r}
 
+grid <- expand.grid(X1 = seq(-3.5, 1.5, length.out = 200), 
+                    X2 = seq(-0.5, 4.5, length.out = 200)) %>%
+  mutate(region = case_when((1 + X1)^2 + (2 - X2)^2 > 4 ~ "gt 4", 
+                            TRUE ~ "le 4"))
+
+ggplot() + 
+  geom_tile(data = grid, aes(x = X1, y = X2, fill = region), alpha = 0.5) + 
+  geom_circle(data = data.frame(X1 = -1, X2 = 2, r = 2), 
+              aes(x0 = X1, y0 = X2, r = r), col = "mediumseagreen", size = 1) + 
+  annotate("text", x = -1, y = 2, label = TeX("$(1 + X_1)^2 + (2 - X_2)^2 \\leq 4$", output = "character"),
+           hjust = 0.5, size = 3, parse = TRUE, col = "red") + 
+  annotate("text", x = 0.5, y = 0, label = TeX("$(1 + X_1)^2 + (2 - X_2)^2 > 4$", output = "character"),
+           hjust = 0.5, size = 3, parse = TRUE, col = "blue") + 
+  scale_x_continuous(expand = c(0.01,0.01), limits = c(-3.5, 1.5)) + 
+  scale_y_continuous(expand = c(0.01,0.01), limits = c(-0.5, 4.5)) + 
+    scale_fill_manual(values = c("lightblue", "red")) +
+  theme(legend.position = "none") + 
+  labs(title = TeX(r'(Curve Plot: $(1 + X_1)^2 + (2 - X_2)^2 = 4$)'), 
+       x = TeX(r'($X_1$)'), 
+       y = TeX(r'($X_2$)')) + 
+  coord_fixed()
+
+```
+
+__(c)__ Suppose that a classifier assigns an observation to the blue class if
+
+$$
+(1+X_1)^2 + (2−X_2)^2 > 4
+
+$$
+
+and to the red class otherwise. To what class is the observation $(0, 0)$ 
+classified? $(-1, 1)$? $(2, 2)$? $(3, 8)$?
+
+**Answer:**
+
+
+```{r}
+new_obs <- data.frame(X1 = c(0, -1, 2, 3), X2 = c(0, 1, 2, 8)) %>%
+  mutate(region = case_when((1 + X1)^2 + (2 - X2)^2 > 4 ~ "gt 4", 
+                            TRUE ~ "le 4"))
+
+
+grid <- expand.grid(X1 = seq(-3.5, 3.5, length.out = 200), 
+                    X2 = seq(-0.5, 8.5, length.out = 200)) %>%
+  mutate(region = case_when((1 + X1)^2 + (2 - X2)^2 > 4 ~ "gt 4", 
+                            TRUE ~ "le 4"))
+
+ggplot() + 
+  geom_tile(data = grid, aes(x = X1, y = X2, fill = region), alpha = 0.5) + 
+  geom_circle(data = data.frame(X1 = -1, X2 = 2, r = 2), 
+              aes(x0 = X1, y0 = X2, r = r), col = "mediumseagreen", size = 1) + 
+  geom_point(data = new_obs, aes(x = X1, y = X2, col = region)) + 
+  scale_x_continuous(expand = c(0.01,0.01), limits = c(-3.5, 3.5)) + 
+  scale_y_continuous(expand = c(0.01,0.01), limits = c(-0.5, 8.5)) + 
+  scale_fill_manual(values = c("lightblue", "red")) +
+  scale_color_manual(values = c("blue", "red")) +
+  theme(legend.position = "none") + 
+  labs(title = TeX(r'(Classifier Plot: $f(X) = (1 + X_1)^2 + (2 - X_2)^2 - 4$)'), 
+       x = TeX(r'($X_1$)'), 
+       y = TeX(r'($X_2$)')) + 
+    coord_fixed()
+
+```
+Base on the plot, we can see that:
+
+- $(0, 0)$: The point is outside the circle, so it is classified as blue.
+- $(-1, 1)$: The point is inside the circle, so it is classified as red.
+- $(2, 2)$: The point is outside the circle, so it is classified as blue.
+- $(3, 8)$: The point is outside the circle, so it is classified as blue.
+
+__(d)__ Argue that while the decision boundary in (c) is not linear in terms of 
+X1 and X2, it is linear in terms of $X_1$, $X_1^2$, $X_2$, and $X_2^2$.
 
 ## Support vector machines (SVMs) on the `Carseats` data set (30pts)
 
