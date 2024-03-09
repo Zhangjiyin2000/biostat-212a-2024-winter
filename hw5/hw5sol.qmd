@@ -85,7 +85,6 @@ ggplot(df, aes(x = x1, y = x2)) +
   geom_text(data = df2, aes(x = -5, y = 0), label = "paste('-2 + ', italic(X[1]), ' + 2', italic(X[2]), ' < 0')", color = "red", parse = TRUE) +
   geom_text(data = df2, aes(x = 7, y = 0), label = "paste('-2 + ', italic(X[1]), ' + 2', italic(X[2]), ' > 0')", color = "red", parse = TRUE) 
   
-  
 ```
 
 
@@ -100,8 +99,27 @@ boundary.
 __(a)__ Sketch the curve
 
 $$
+(1+X_1)^2 + (2−X_2)^2 = 4
+$$
+
+__(b)__ On your sketch, indicate the set of points for which
 
 $$
+(1+X_1)^2 + (2−X_2)^2 > 4
+
+$$
+
+as well as the set of points for which
+
+$$
+(1+X_1)^2 + (2−X_2)^2 < 4
+
+$$
+
+**Answer:**
+
+![](sketch_q2a&b.jpg)
+
 
 ## Support vector machines (SVMs) on the `Carseats` data set (30pts)
 
