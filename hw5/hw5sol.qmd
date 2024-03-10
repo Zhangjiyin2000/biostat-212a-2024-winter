@@ -238,6 +238,125 @@ and $X_2^2$.
 
 Follow the machine learning workflow to train support vector classifier (same as SVM with linear kernel), SVM with polynomial kernel (tune the degree and regularization parameter $C$), and SVM with radial kernel (tune the scale parameter $\gamma$ and regularization parameter $C$) for classifying `Sales<=8` versus `Sales>8`. Use the same seed as in your HW4 for the initial test/train split and compare the final test AUC and accuracy to those methods you tried in HW4.
 
+**Answer:**
+
+**SVM with polynomial kernel**
+
+**Carseats dataset:**
+
+```{r}
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(tidyverse)
+library(tidymodels)
+library(ISLR2)
+
+```
+
+```{r}
+# Numerical summaries
+data(Carseats)
+Carseats %>% tbl_summary()
+```
+
+```{r}
+Carseats <- Carseats %>% filter(!is.na(Sales)) %>%
+  mutate(Sales = ifelse(Sales <= 8, "Low", "High")) %>%
+  print(width = 200)
+
+```
+**Initial split into test and non-test sets:**
+
+```{r}
+# For reproducibility
+set.seed(212)
+
+data_split <- initial_split(
+  Carseats, 
+  prop = 0.5,
+  strata = Sales
+  )
+data_split
+
+```
+
+```{r}
+Carseats_other <- training(data_split)
+dim(Carseats_other)
+```
+
+```{r}
+Carseats_test <- testing(data_split)
+dim(Carseats_test)
+```
+
+**Recipe:**
+
+```{r}
+svm_poly_recipe <- 
+  recipe(
+    Sales ~ ., 
+    data = Carseats_other
+  ) %>%
+  step_naomit(all_predictors()) %>%
+  # # create traditional dummy variables (not necessary for random forest in R)
+  step_dummy(all_nominal_predictors()) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # # center and scale numeric data (not necessary for random forest)
+  step_normalize(all_numeric_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = Carseats_other, retain = TRUE)
+svm_poly_recipe
+
+```
+**Model:**
+
+```{r}
+svm_poly_mod <- 
+  # specify the model
+  svm_poly(
+    mode = "classification",
+    engine = "kernlab",
+    cost = tune(),
+    degree = tune()
+  ) %>%
+  # specify the engine
+  set_engine("kernlab") %>%
+  # specify the resampling method
+  set_mode("classification")
+
+```
+
+**Workflow:**
+
+```{r}
+svm_poly_wf <- workflow() %>%
+  add_recipe(svm_poly_recipe) %>%
+  add_model(svm_poly_mod) 
+svm_poly_wf
+
+```
+
+**Tuning:**
+
+```{r}
+svm_poly_grid <- grid_regular(cost_complexity(),
+                              degree(range = c(1, 3)))
+                          
+
+```
+
+```{r}
+set.seed(212)
+
+folds <- vfold_cv(Carseats_other, v = 5)
+folds
+
+```
+
+
 ## Bonus (10pts)
 
 Let
@@ -245,3 +364,77 @@ $$
 f(X) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p = \beta_0 + \beta^T X. 
 $$
 Then $f(X)=0$ defines a hyperplane in $\mathbb{R}^p$. Show that $f(x)$ is proportional to the signed distance of a point $x$ to the hyperplane $f(X) = 0$. 
+
+**Answer:**
+
+The plane is 
+
+$$
+\beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p = 0
+
+$$
+
+The vector $\beta = (\beta_1, \beta2, ..., \beta_p)$ the normal to vector. It 
+points in a direction orthogonal to the surface of hyperplane. 
+
+Let
+
+$$
+\mathbf{v} = (\beta_1, \beta_2, ..., \beta_p)
+
+$$
+
+For any $x_0$ in the hyperplane $f(x)=0$, let
+
+$$
+x_0 = (x_{01}, x_{02}, ..., x_{0p})
+
+$$
+
+Therefore,
+
+$$
+\beta_0 + \beta_1 x_01 + \cdots + \beta_p x_0p = 0 \\
+\Rightarrow -\beta_0 = \beta_1 x_01 + \cdots + \beta_p x_0p
+
+$$
+
+For any $x$, let
+
+$$
+x = (x_1, x_2, ..., x_p)
+$$
+
+The vector from $x_0$ to $x$ is
+
+$$
+\mathbf{w} = (x_1 - x_{01}, x_2 - x_{02}, ..., x_p - x_{0p})
+
+$$
+
+The the signed distance of $x$ is
+
+$$
+\begin{align*}
+d &= \frac{\mathbf{v} \cdot \mathbf{w}}{\|\mathbf{v}\|} \\ 
+&= \frac{\beta_1(x_1 - x_{01}) + \beta_2(x_2 - x_{02}) + \cdots + \beta_p(x_p - x_{0p})}{\sqrt{\beta_1^2 + \beta_2^2 + \cdots + \beta_p^2}} \\
+&= \frac{\beta_1x_1  + \beta_2x_2  + \cdots + \beta_px_p - 
+(\beta_1x_{01} + \beta_2x_{02} + \cdots + \beta_px_{0p} )}
+{\sqrt{\beta_1^2 + \beta_2^2 + \cdots + \beta_p^2}} \\
+&= \frac{\beta_1x_1  + \beta_2x_2  + \cdots + \beta_px_p + \beta_0 }{\|\beta\|} \\
+&= \frac{\beta^T x + \beta_0}{\|\beta\|} \\
+&= \frac{f(x)}{\|\beta\|} \\
+
+\end{align*}
+$$
+Therefore, $f(x)$ is proportional to the signed distance of a point $x$ to the
+hyperplane $f(X) = 0$.
+
+
+
+
+
+
+
+
+
