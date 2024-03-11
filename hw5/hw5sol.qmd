@@ -38,33 +38,23 @@ for which $−2+X_1+2X_2 <0$.
 
 Plotting the line:
 
-$$
-1 + 3X_1 − X_2 = 0 \Leftrightarrow X_2 = 1 + 3X_1
+$1 + 3X_1 − X_2 = 0 \Leftrightarrow X_2 = 1 + 3X_1$
 
-$$
 Rearranging for $X_2$ makes it clear which side of the hyperplane is which:
 
-$$
-1 + 3X_1 − X_2 > 0 \Leftrightarrow X_2 < 1 + 3X_1 \\
+$1 + 3X_1 − X_2 > 0 \Leftrightarrow X_2 < 1 + 3X_1$
 
-1 + 3X_1 − X_2 < 0 \Leftrightarrow X_2 > 1 + 3X_1
-
-$$
+$1 + 3X_1 − X_2 < 0 \Leftrightarrow X_2 > 1 + 3X_1$
 
 Plotting another line:
 
-$$
-−2 + X_1 + 2X_2 = 0 \Leftrightarrow X_2 = 1 - \frac{1}{2}X_1
+$−2 + X_1 + 2X_2 = 0 \Leftrightarrow X_2 = 1 - \frac{1}{2}X_1$
 
-$$
 Rearranging for $X_2$ makes it clear which side of the hyperplane is which:
 
-$$
-−2 + X_1 + 2X_2 > 0 \Leftrightarrow  X_2 > 1 - \frac{1}{2}X_1 \\
+$−2 + X_1 + 2X_2 > 0 \Leftrightarrow  X_2 > 1 - \frac{1}{2}X_1$
 
-−2 + X_1 + 2X_2 < 0 \Leftrightarrow X_2 < 1 - \frac{1}{2}X_1
-
-$$
+$−2 + X_1 + 2X_2 < 0 \Leftrightarrow X_2 < 1 - \frac{1}{2}X_1$
 
 ```{r}
 library(ggplot2)
@@ -88,8 +78,6 @@ ggplot(df, aes(x = x1, y = x2)) +
 ```
 
 
-
-
 ## ISL Exercise 9.7.2 (10pts)
 
 We have seen that in p = 2 dimensions, a linear decision boundary takes the form 
@@ -98,9 +86,7 @@ boundary.
 
 __(a)__ Sketch the curve
 
-$$
-(1+X_1)^2 + (2−X_2)^2 = 4
-$$
+$(1+X_1)^2 + (2−X_2)^2 = 4$
 
 **Answer:**
 
@@ -127,17 +113,11 @@ ggplot() +
 
 __(b)__ On your sketch, indicate the set of points for which
 
-$$
-(1+X_1)^2 + (2−X_2)^2 > 4
-
-$$
+$(1+X_1)^2 + (2−X_2)^2 > 4$
 
 as well as the set of points for which
 
-$$
-(1+X_1)^2 + (2−X_2)^2 < 4
-
-$$
+$(1+X_1)^2 + (2−X_2)^2 < 4$
 
 **Answer:**
 
@@ -169,10 +149,7 @@ ggplot() +
 
 __(c)__ Suppose that a classifier assigns an observation to the blue class if
 
-$$
-(1+X_1)^2 + (2−X_2)^2 > 4
-
-$$
+$(1+X_1)^2 + (2−X_2)^2 > 4$
 
 and to the red class otherwise. To what class is the observation $(0, 0)$ 
 classified? $(-1, 1)$? $(2, 2)$? $(3, 8)$?
@@ -723,9 +700,11 @@ Based on this comparing table, we can see that SVM methods have much higher test
 ## Bonus (10pts)
 
 Let
+
 $$
-f(X) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p = \beta_0 + \beta^T X. 
+f(X) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p = \beta_0 + \beta^T X 
 $$
+
 Then $f(X)=0$ defines a hyperplane in $\mathbb{R}^p$. Show that $f(x)$ is proportional to the signed distance of a point $x$ to the hyperplane $f(X) = 0$. 
 
 **Answer:**
@@ -734,7 +713,6 @@ The plane is
 
 $$
 \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p = 0
-
 $$
 
 The vector $\beta = (\beta_1, \beta2, ..., \beta_p)$ the normal to vector. It 
@@ -744,22 +722,24 @@ Let
 
 $$
 \mathbf{v} = (\beta_1, \beta_2, ..., \beta_p)
-
 $$
 
 For any $x_0$ in the hyperplane $f(x)=0$, let
 
 $$
 x_0 = (x_{01}, x_{02}, ..., x_{0p})
-
 $$
 
 Therefore,
 
 $$
-\beta_0 + \beta_1 x_01 + \cdots + \beta_p x_0p = 0 \\
-\Rightarrow -\beta_0 = \beta_1 x_01 + \cdots + \beta_p x_0p
+\begin{align*}
+\beta_0 + \beta_1 x_{01} + \cdots + \beta_p x_{0p} = 0 
+\end{align*}
+$$
 
+$$
+\Rightarrow -\beta_0 = \beta_1 x_{01} + \cdots + \beta_p x_{0p}
 $$
 
 For any $x$, let
@@ -772,7 +752,6 @@ The vector from $x_0$ to $x$ is
 
 $$
 \mathbf{w} = (x_1 - x_{01}, x_2 - x_{02}, ..., x_p - x_{0p})
-
 $$
 
 The the signed distance of $x$ is
@@ -787,9 +766,9 @@ d &= \frac{\mathbf{v} \cdot \mathbf{w}}{\|\mathbf{v}\|} \\
 &= \frac{\beta_1x_1  + \beta_2x_2  + \cdots + \beta_px_p + \beta_0 }{\|\beta\|} \\
 &= \frac{\beta^T x + \beta_0}{\|\beta\|} \\
 &= \frac{f(x)}{\|\beta\|} \\
-
 \end{align*}
 $$
+
 Therefore, $f(x)$ is proportional to the signed distance of a point $x$ to the
 hyperplane $f(X) = 0$.
 
