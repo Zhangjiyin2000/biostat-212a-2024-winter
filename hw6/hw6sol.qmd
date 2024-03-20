@@ -321,13 +321,13 @@ month_folds <- NYSE_other %>%
 
 
 ```{r}
-lambda_grid <-
+en_grid <-
   grid_regular(penalty(range = c(-8, -7), trans = log10_trans()), levels = 3)
-lambda_grid
+en_grid
 ```
 
 ```{r}
-en_fit <- tune_grid(en_wf, resamples = month_folds, grid = lambda_grid) 
+en_fit <- tune_grid(en_wf, resamples = month_folds, grid = en_grid) 
 en_fit
 ```
 
@@ -339,7 +339,8 @@ cv_rsq_en <- en_fit %>%
   filter(.metric == "rsq") %>%
   pull(mean) 
 cv_rsq_en <- mean(cv_rsq_en) %>% round(2)
-cv_rsq_en
+print(paste("AR(5) with elastic net cv R2: ", cv_rsq_en))
+
 ```
 
 Test R2:
@@ -360,23 +361,22 @@ final_wf_en
 ```
 
 ```{r}
-# Predict the log volume using the Elastic Net AR(5) model
-predicted_log_volume <- best_en %>%
-  predict(NYSE_test) %>%
-  pull(.pred)
-
-# Calculate the R2 for the test set
-test_r2_en <- rsq_vec(NYSE_test$log_volume, predicted_log_volume)
-
-# Round the R2 value to two decimal places
-test_r2_en_rounded <- round(test_r2_en, 2)
-
-# Print the test R2 value
-print(paste("Elastic Net AR(5) Test R2:", test_r2_en_rounded))
+# Fit the whole training set, then predict the test cases
+final_fit_en <- fit(final_wf_en, data = NYSE_other)
+predictions_en <- predict(final_fit_en, NYSE_test)
+predictions_en
 ```
+
 ```{r}
-str(NYSE_test)
+#test metrics
+results <- bind_cols(NYSE_test %>% select(log_volume), predictions_en)
+results
+test_rsq_en <- rsq(results, truth = log_volume, estimate = .pred) %>%
+  filter(.metric == "rsq") %>%
+  pull(.estimate) %>% round(2)
+print(paste("AR(5) with elastic net test R2: ", test_rsq_en))
 ```
+
 ### Random forest forecaster (30pts)
 
 - Use the same features as in AR($L$) for the random forest. Tune the random forest and evaluate the test performance.
