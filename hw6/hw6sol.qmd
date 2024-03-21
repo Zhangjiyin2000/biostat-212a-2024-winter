@@ -155,7 +155,8 @@ for(i in seq(1, L)) {
 }
 
 
-NYSE <-   NYSE %>% na.omit()
+NYSE <-   NYSE %>% na.omit() %>%
+  print(width = Inf)
 ```
 
 
@@ -327,6 +328,7 @@ en_grid
 ```
 
 ```{r}
+library(randomForest)
 en_fit <- tune_grid(en_wf, resamples = month_folds, grid = en_grid) 
 en_fit
 ```
@@ -340,7 +342,6 @@ cv_rsq_en <- en_fit %>%
   pull(mean) 
 cv_rsq_en <- mean(cv_rsq_en) %>% round(2)
 print(paste("AR(5) with elastic net cv R2: ", cv_rsq_en))
-
 ```
 
 Test R2:
@@ -386,10 +387,9 @@ print(paste("AR(5) with elastic net test R2: ", test_rsq_en))
 ```{r}
 rf_receipe <- 
   recipe(log_volume ~ ., data = NYSE_other) %>% 
-  step_dummy(all_nominal(), -all_outcomes()) %>% 
-  step_normalize(all_numeric_predictors(), -all_outcomes()) %>%  
-  step_naomit(all_predictors()) %>%
-  prep(data = NYSE_other)
+  step_naomit(log_volume) %>%
+  step_zv(all_numeric_predictors()) %>% 
+  prep(data = NYSE_other, retain = TRUE)
 rf_receipe
 ```
 
@@ -437,12 +437,11 @@ rf_grid <-
     mtry(range = c(1L, 5L)),
     levels = c(3, 5)
   )
-gb_grid
+rf_grid
 ```
 
 ```{r}
-rf_fit <- tune_grid(rf_wf, resamples = month_folds, grid = rf_grid) %>%
-     collect_metrics() 
+rf_fit <- tune_grid(rf_wf, resamples = month_folds, grid = rf_grid) 
 rf_fit
 ```
 
@@ -454,8 +453,43 @@ cv_rsq_rf <- rf_fit %>%
   filter(.metric == "rsq") %>%
   pull(mean) 
 cv_rsq_rf <- mean(cv_rsq_rf) %>% round(2)
-cv_rsq_rf
+print(paste("random forest cv R2: ", cv_rsq_rf))
 ```
+
+Test R2:
+
+```{r}
+rf_fit %>%
+  show_best("rsq")
+
+best_rf <- rf_fit %>%
+  select_best("rsq")
+
+best_rf
+
+# Final workflow
+final_wf_rf <- rf_wf %>%
+  finalize_workflow(best_rf)
+final_wf_rf
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit_rf <- fit(final_wf_rf, data = NYSE_other)
+predictions_rf <- predict(final_fit_rf, NYSE_test)
+predictions_rf
+```
+
+```{r}
+#test metrics
+results <- bind_cols(NYSE_test %>% select(log_volume), predictions_rf)
+results
+test_rsq_rf <- rsq(results, truth = log_volume, estimate = .pred) %>%
+  filter(.metric == "rsq") %>%
+  pull(.estimate) %>% round(2)
+print(paste("random forest test R2: ", test_rsq_rf))
+```
+
 
 ### Boosting forecaster (30pts)
 
@@ -467,10 +501,11 @@ cv_rsq_rf
 gb_receipe <- 
   recipe(log_volume ~ ., data = NYSE_other) %>% 
   step_dummy(all_nominal(), -all_outcomes()) %>% 
-  step_normalize(all_numeric_predictors(), -all_outcomes()) %>%  
+  step_naomit(log_volume) %>%
   step_naomit(all_predictors()) %>%
-  prep(data = NYSE_other)
-rf_receipe
+  step_zv(all_numeric_predictors()) %>%
+  prep(data = NYSE_other, retain = TRUE)
+gb_receipe
 ```
 
 ```{r}
@@ -512,16 +547,41 @@ month_folds <- NYSE_other %>%
 ```{r}
 gb_grid <-
   grid_regular(
-    trees(range = c(100L, 300L)), 
-    mtry(range = c(1L, 5L)),
-    levels = c(3, 5)
+    tree_depth(range = c(1L, 4L)),
+    learn_rate(range = c(-3, -0.5), trans = log10_trans()),
+    levels = c(4, 10)
   )
 gb_grid
 ```
 
+Check the type of variables in the dataset.
+
 ```{r}
-gb_fit <- tune_grid(gb_wf, resamples = month_folds, grid = gb_grid) %>%
-     collect_metrics() 
+dataset <- NYSE_other
+
+# Loop through each column of the dataset
+for (col_name in names(dataset)) {
+  # Check if the column is numeric
+  is_numeric <- is.numeric(dataset[[col_name]])
+  # Check if the column is categorical (a factor)
+  is_categorical <- is.factor(dataset[[col_name]])
+  
+  # Print information about the column
+  cat("Variable:", col_name, "\n")
+  if (is_numeric) {
+    cat("   Data Type: Numeric\n")
+  } else if (is_categorical) {
+    cat("   Data Type: Categorical\n")
+  } else {
+    cat("   Data Type: Other\n")
+  }
+}
+
+```
+
+
+```{r}
+gb_fit <- tune_grid(gb_wf, resamples = month_folds, grid = gb_grid) 
 gb_fit
 ```
 
@@ -533,7 +593,41 @@ cv_rsq_gb <- gb_fit %>%
   filter(.metric == "rsq") %>%
   pull(mean) 
 cv_rsq_gb <- mean(cv_rsq_gb) %>% round(2)
-cv_rsq_gb
+print(paste("boosting cv R2: ", cv_rsq_gb))
+```
+
+Test R2:
+
+```{r}
+gb_fit %>%
+  show_best("rsq")
+
+best_gb <- gb_fit %>%
+  select_best("rsq")
+
+best_gb
+
+# Final workflow
+final_wf_gb <- gb_wf %>%
+  finalize_workflow(best_gb)
+final_wf_gb
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit_gb <- fit(final_wf_gb, data = NYSE_other)
+predictions_gb <- predict(final_fit_gb, NYSE_test)
+predictions_gb
+```
+
+```{r}
+#test metrics
+results <- bind_cols(NYSE_test %>% select(log_volume), predictions_gb)
+results
+test_rsq_gb <- rsq(results, truth = log_volume, estimate = .pred) %>%
+  filter(.metric == "rsq") %>%
+  pull(.estimate) %>% round(2)
+print(paste("boosting test R2: ", test_rsq_gb))
 ```
 
 ### Summary (30pts)
@@ -548,6 +642,15 @@ Summarize the performance of different machine learning forecasters in the follo
 | AR(5) | | | |
 | Random Forest | | | |
 | Boosting | | | |
+
+```{r}
+tibble(
+  Method = c("Baseline", "AR(5)", "Random Forest", "Boosting"),
+  `CV R2` = c(NA, cv_rsq_en, cv_rsq_rf, cv_rsq_gb),
+  `Test R2` = c(r2_test_strawman, test_rsq_en, test_rsq_rf, test_rsq_gb)
+)
+
+```
 
 ## ISL Exercise 12.6.13 (90 pts)
 ### 12.6.13 (b) (30 pts)
@@ -660,9 +763,87 @@ The genes separate the samples into the two groups. And my results do not depend
 on the type of linkage used since all four linkage methods used suggest two main 
 clusters.
 
+### PCA and UMAP (30 pts)
+
+Load necessary libraries. 
 
 ```{r}
-grp = factor(rep(c(1, 0), each = 20))
+library(recipes)
+library(tidymodels)
+library(tidyverse)
+library(embed)
+```
+
+Transpose the data. 
+
+```{r}
+transposed_data <- Ch12Ex13 %>%
+  t() %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  as_tibble() %>%
+  rename(ID = rowname)
+transposed_data
+
+names(transposed_data) <- c("ID", paste(seq(1, 1000), ""))
+# names(transposed_data)
+
+transposed_data <- transposed_data %>%
+  mutate(status = as.character(rep(c("Healthy", "Disease"), each = 20)), 
+         .after = "ID")
+
+transposed_data
+# tail(transposed_data)
+```
+
+Create the recipe for PCA.
+
+```{r}
+pca_rec <- recipe(~., data = transposed_data) %>%
+  update_role(ID, status, new_role = "ID") %>%
+  step_normalize(all_predictors()) %>%
+  step_zv(all_numeric()) %>%
+  step_pca(all_predictors())
+pca_prep <- prep(pca_rec)
+pca_prep
+```
+
+Plot the PCA. 
+
+```{r}
+juice(pca_prep) %>%
+  ggplot(aes(x = PC1, y = PC2, label = ID)) +
+  geom_point(aes(color = status), alpha = 0.7, size = 2) +
+  labs(color = "Status")
+```
+
+Create the recipe for UMAP.
+
+```{r}
+umap_rec <- recipe(~., data = transposed_data) %>%
+  update_role(ID, status, new_role = "ID") %>%
+  step_normalize(all_predictors()) %>%
+  step_umap(all_predictors(), neighbors = 20, min_dist = 0.01)
+umap_prep <- prep(umap_rec)
+```
+
+Plot the UMAP.
+
+```{r}
+juice(umap_prep) %>%
+  ggplot(aes(x = UMAP1, y = UMAP2, label = ID)) +
+  geom_point(aes(color = status), alpha = 0.7, size = 2) +
+  labs(color = "Status")
+```
+
+### 12.6.13 (c) (30 pts)
+
+Your collaborator wants to know which genes differ the most
+across the two groups. Suggest a way to answer this question,
+and apply it here.
+
+```{r}
+grp <- factor(rep(c(1, 0), each = 20))
 
 regression <- function(y) {
   sum <- summary(lm(y ~ grp))
@@ -671,15 +852,22 @@ regression <- function(y) {
 }
 
 
-out <- tibble(gene = seq(1, nrow(Ch12Ex13)),
-              p_values = unlist(purrr:: map(1:nrow(Ch12Ex13), ~regression(as.matrix(Ch12Ex13)[.x, ]))))
+out <- tibble(
+  gene = seq(1, nrow(Ch12Ex13)),
+  p_values = unlist(purrr::map(1:nrow(Ch12Ex13), 
+                               ~ regression(as.matrix(Ch12Ex13)[.x, ])))
+)
 ```
 
 ```{r}
-out %>% arrange(p_values) %>% head(10)
+out %>%
+  arrange(p_values) %>%
+  head(10)
 
 # sig <- out %>% arrange(p_values) %>% filter(p_values < 0.05/nrow(Ch12Ex13))
-sig <- out %>% arrange(p_values) %>% filter(p_values < 0.05 )
+sig <- out %>%
+  arrange(p_values) %>%
+  filter(p_values < 0.05)
 ```
 
 ```{r}
@@ -689,90 +877,25 @@ library(heatmaply) ## for constructing interactive heatmap
 ```
 
 ```{r}
-
-#create data frame for annotations
-dfh <- data.frame(sample=as.character(colnames(Ch12Ex13)), status = "disease") %>%
-                column_to_rownames("sample")
-dfh$status[seq(21, 40)] <-  "healthy"
+# create data frame for annotations
+dfh <- data.frame(sample = as.character(colnames(Ch12Ex13)), 
+                  status = "disease") %>%
+  column_to_rownames("sample")
+dfh$status[seq(21, 40)] <- "healthy"
 dfh
 
 
-pheatmap(Ch12Ex13[sig$gene, ], cluster_rows = FALSE, cluster_cols = T, scale="row", annotation_col = dfh,
-         annotation_colors=list(status = c(disease = "orange", healthy = "black")),
-         color=colorRampPalette(c("navy", "white", "red"))(50))
+pheatmap(Ch12Ex13[sig$gene, ],
+  cluster_rows = FALSE,
+  cluster_cols = T,
+  scale = "row",
+  annotation_col = dfh,
+  annotation_colors = list(status = c(disease = "orange", healthy = "black")),
+  color = colorRampPalette(c("navy", "white", "red"))(50)
+)
 ```
 
-### PCA and UMAP (30 pts)
-
-```{r}
-pca_rec <- recipe(~., data = Ch12Ex13) %>%
-  update_role(ID, disease, new_role = "id") %>%
-  step_normalize(all_predictors()) %>%
-  step_pca(all_predictors())
-pca_prep <- prep(pca_rec)
-pca_prep
-```
-
-```{r}
-juice(pca_prep) %>%
-  ggplot(aes(x = PC1, y = PC2, label = status)) +
-  geom_point(aes(color = status), alpha = 0.7, size = 2) +
-  labs(color = NULL)
-```
-
-
-```{r}
-transposed_data <- Ch12Ex13 %>%
-  t() %>%
-  as.data.frame() %>%
-  rownames_to_column() %>%
-  as_tibble() %>%
-  rename(ID = rowname) 
-
-names(transposed_data) <- c("ID", paste(seq(1, 1000), ""))
-```
-
-
-```{r}
-exp_filtered <- transposed_data 
-```
-
-```{r}
-pca_rec <- recipe(~ ., data = exp_filtered) %>%
-  update_role(ID, status, new_role = "ID") %>%
-  step_normalize(all_predictors()) %>%
-  step_zv(all_numeric()) %>%
-  step_pca(all_predictors())
-pca_prep <- prep(pca_rec)
-pca_prep
-```
-
-```{r}
-```
-
-```{r}
-install.packages("embed")
-library(embed)
-umap_rec <- recipe(~ ., data = exp_filtered) %>%
-  update_role(ID, status, new_role = "ID") %>%
-  step_normalize(all_predictors()) %>%
-  step_umap(all_predictors(), neighbors = 20, min_dist = 0.01)
-umap_prep <- prep(umap_rec)
-```
-
-```{r}
-juice(umap_prep) %>%
-  ggplot(aes(x = UMAP1, y = UMAP2, label = ID)) +
-  geom_point(aes(color = status), alpha = 0.7, size = 2) +
-  labs(color = NULL)
-```
-
-```{r}
-```
-
-### 12.6.13 (c) (30 pts)
-
-Your collaborator wants to know which genes differ the most
-across the two groups. Suggest a way to answer this question,
-and apply it here.
+Based on p value table created above, we can see that the top 10 genes that 
+differ the most across the two groups are 502, 589, 600, 590, 565, 551, 593, 
+584, 538, and 569.
 
