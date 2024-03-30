@@ -1,0 +1,626 @@
+---
+title: "Biostat 212a Homework 1"
+subtitle: "Due Jan 23, 2024 @ 11:59PM"
+author: "Jiyin (Jenny) Zhang and 606331859"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+## Filling gaps in lecture notes (10pts)
+
+Consider the regression model
+$$
+Y = f(X) + \epsilon,
+$$
+where $\operatorname{E}(\epsilon) = 0$. 
+
+### Optimal regression function
+
+Show that the choice
+$$
+f_{\text{opt}}(X) = \operatorname{E}(Y | X)
+$$
+minimizes the mean squared prediction error
+$$
+\operatorname{E}\{[Y - f(X)]^2\},
+$$
+where the expectations averages over variations in both $X$ and $Y$. (Hint: condition on $X$.)
+
+**Answer:**
+
+$$
+\begin{align*}
+MSE=\operatorname{E}\{\{[Y - f(X)]^2\} &= \operatorname{E}\ {\{\operatorname{E}\{[Y - f(X)]^2 | X\} }\}\\
+&= \operatorname{E}\ {\{\operatorname{E}\{Y^2 - 2*Y*f(X) + [f(x)]^2 | X\} }\} \\
+&= \operatorname{E}\ {\{\operatorname{E}(Y^2 | X) - 2*f(X)*\operatorname{E}(Y | X) + [f(x)]^2\} } \\
+\end{align*}
+$$
+
+To get the minimum, we take the derivative of the inner expectation with respect to f(X) and set it to 0. 
+
+$$
+\begin{align*}
+\frac{d\operatorname{E}(Y^2 | X) - 2*f(X)*\operatorname{E}(Y | X) + [f(x)]^2} {df(x)}= 0 - 2*\operatorname{E}(Y|X) + 2*f(X) = 0 \\
+f(X) = \operatorname{E}(Y|X) = f_{\text{opt}}(X)
+\end{align*}
+$$
+
+
+
+
+### Bias-variance trade-off
+
+Given an estimate $\hat f$ of $f$, show that the test error at a $x_0$ can be decomposed as
+$$
+\operatorname{E}\{[y_0 - \hat f(x_0)]^2\} = \underbrace{\operatorname{Var}(\hat f(x_0)) + [\operatorname{Bias}(\hat f(x_0))]^2}_{\text{MSE of } \hat f(x_0) \text{ for estimating } f(x_0)} + \underbrace{\operatorname{Var}(\epsilon)}_{\text{irreducible}},
+$$
+where the expectation averages over the variability in $y_0$ and $\hat f$.
+
+**Answer:**
+$$
+\begin{align*}
+\operatorname{E}\{[y_0 - \hat f(x_0)]^2\} &= \operatorname{E}\{[ \hat f(x_0) - y_0 ]^2 \}\\
+&= \operatorname{E}\{[ \hat f(x_0) - [ f(x_0) + \epsilon  ]]^2\} \\
+&= \operatorname{E}\{[ \hat f(x_0) -  f(x_0) - \epsilon  ]^2\} \\
+&= \operatorname{E}\{[ \hat f(x_0) -  f(x_0) ]^2\} + \operatorname{E}( \epsilon^2  ) - 2*\operatorname{E}\{[ \hat f(x_0) -  f(x_0) ]*\epsilon\} \\
+&= \{\operatorname{E}[ \hat f(x_0) -  f(x_0) ]\}^2 + Var[ \hat f(x_0) -  f(x_0) ]+ [\operatorname{E}( \epsilon  ) ]^2 + Var( \epsilon  )  - 2*\operatorname{E}\{[ \hat f(x_0) ]-  f(x_0) \}*\operatorname{E}(\epsilon) \\
+&= \{\operatorname{E}[ \hat f(x_0) ]-  f(x_0) \}^2 +Var[ \hat f(x_0) ] + 0 + Var( \epsilon  )  - 0 \\
+&= \{Bias[ \hat f(x_0) ]\}^2 +Var[ \hat f(x_0) ] + Var( \epsilon  )  \\
+\end{align*}
+$$
+
+## ISL Exercise 2.4.3 (10pts)
+__(a)__ Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the method, and the y-axis should represent the values for each curve. There should be five curves. Make sure to label each one.
+
+```{r}
+# Install and load necessary packages
+library(ggplot2)
+library(extrafont)
+library(tidyr)
+
+
+# Create a sequence of values for x
+x <- seq(0, 10, 0.02)
+
+# Define functions for squared bias, variance, training error, test error, and Bayes error
+squared_bias <- function(x) { 0.002 * (-x + 10)^3 }
+variance <- function(x) { 0.002 * x^3 }
+training_error <- function(x) { 2.38936 - 0.825077 * x + 0.176655 * x^2 - 0.0182319 * x^3 + 0.00067091 * x^4 }
+test_error <- function(x) { 3 - 0.6 * x + 0.06 * x^2 }
+bayes_error <- function(x) { x + 1 - x }
+
+# Compute the values for each function
+bias_values <- squared_bias(x)
+variance_values <- variance(x)
+training_error_values <- training_error(x)
+test_error_values <- test_error(x)
+bayes_error_values <- bayes_error(x)
+
+# Create a plot
+#plt <- ggplot() +
+#  geom_line(aes(x = x, y = squared_bias(x), color="Squared Bias"), linetype = "solid", size = 1) +
+#  geom_line(aes(x = x, y = variance(x), color="Variance"), linetype = "solid", size = 1) +
+#  geom_line(aes(x = x, y = training_error(x), color="Training Error"), linetype = "solid", size = 1) +
+#  geom_line(aes(x = x, y = test_error(x), color="Test Error"), linetype = "solid", size = 1) +
+#  geom_line(aes(x = x, y = bayes_error(x), color="Bayes Error"), linetype = "solid", size = 1) +
+#  labs(x = "Model flexibility", y="Values for Each Curve", color = "Curve Type") +
+
+#  scale_color_manual(
+#    values = c("Squared Bias" = "red", "Variance" = "blue", "Training Error" = "green", "Test Error" = "purple", "Bayes Error" = "orange"),
+#    labels = c("Squared Bias", "Variance", "Training Error", "Test Error", "Bayes Error")
+#  ) +
+#  guides(color = guide_legend(title = "Curve Type", override.aes = list(shape = NA))) +
+#  theme(legend.position = "upper.center", legend.key = element_blank(), legend.title = element_text(size = 12, face = "bold")
+
+# Combine the data into a data frame for ggplot2
+data <- data.frame(
+  x = x,
+  SquaredBias = bias_values,
+  Variance = variance_values,
+  TrainingError = training_error_values,
+  TestError = test_error_values,
+  BayesError = bayes_error_values
+)
+
+# Use pivot_longer from tidyr to reshape the data
+data_long <- pivot_longer(data, cols = -x, names_to = 'ErrorType', values_to = 'Value')
+
+# Plot the data using ggplot2
+plt <- ggplot(data_long, aes(x = x, y = Value, color = ErrorType)) +
+  geom_line() +
+  labs(x = 'Model Flexibility', y = 'Error', color = 'Error Type') +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+# Display the plot
+plt
+```
+__(b)__ 
+
+**Squared bias: **This is the error in our model introduced by the difference of our approximation and the true underlying function. A more flexible model will be increasingly similar, and the squared bias therefore diminshes as the flexibility increases. (It might even reach zero if for example the underlying function is a polynomial and by increasing the flexibility at a certain point we include the polynomials of this degree in our hypothesis space.)
+
+**Variance:** In the limit of a model with no flexibility the variance will be zero, since the model fit will be independent of the data. As the flexibility increases the variance will increase as well since the noise in a particular training set will correspondingly captured by the model. The curve described by the variance is an monotonically increasing function of the flexibility of the model.
+
+**Training error:** The training error is given by the average (squared) difference between the predictions of the model and the observations. If a model if very unflexible this can be quite high, but as the flexibility increases this difference will decrease. If we consider polynomials for example increasing the flexibility of the model might mean increasing the degree of the polynomial to be fitted. The additional degrees of freedom will decrease the average difference and reduce the training error.
+
+**Test error:** Ths expected test error is given by the formula: Variance + Bias + Bayes error, all of which are non-negative. The Bayes error is constant and a lower bound for the test error. The test error has a minimum at an intermediate level of flexibility: not too flexible, so that the variance does not dominate, and not too inflexible, so that the squared bias is not too high. The plot of the test error thus resembles sort of an upward (deformed) parabola: high for unflexible models, decreasing as flexibility increases until it reaches a minimum. Then the variance starts to dominate and the test error starts increasing. The distance between this minimum and the Bayes irreducible error gives us an idea of how well the best function in the hypothesis space will fit.
+
+**Bayes error:** This term is constant since by definition it does not depend on X and therefore on the flexibility of the model.
+
+
+
+## ISL Exercise 2.4.4 (10pts)
+
+__(a)__ **Classification:**
+
+  - **Email Spam Detection:**
+
+Response Variable: Whether an email is spam or not (binary classification).
+
+Predictors: Features extracted from the email content, sender information, and other metadata.
+
+Goal: Prediction. The goal is to accurately classify emails as spam or non-spam to filter unwanted messages and protect users from phishing or malicious content.
+  
+  - **Breast Cancer Detection:**
+
+Response Variable: Whether a breast tumor is malignant or benign (binary classification).
+
+Predictors: Various medical features such as tumor size, shape, and texture extracted from mammograms or biopsies.
+
+Goal: Inference and Prediction. The goal is to infer the likelihood of a tumor being malignant based on the provided features. Additionally, prediction is crucial for assisting medical professionals in making decisions about treatment.
+  
+  - **Credit Scoring:**
+
+Response Variable: Whether a loan applicant is likely to default on a loan (binary classification).
+
+Predictors: Financial and personal information of the loan applicant, including credit score, income, debt, and employment status.
+
+Goal: Prediction. The goal is to predict the creditworthiness of an applicant to make informed decisions about loan approvals. This application helps financial institutions manage risk and optimize lending practices.
+
+__(b)__ **Regression:**
+
+- **House Price Prediction:**
+
+Response Variable: The selling price of a house (continuous variable).
+
+Predictors: Features such as the size of the house, number of bedrooms, location, proximity to amenities, and other relevant factors.
+
+Goal: Prediction. The goal is to predict the selling price of a house based on its features, allowing real estate professionals and potential buyers/sellers to make informed decisions.
+
+- **Sales Forecasting:**
+
+Response Variable: Sales volume or revenue (continuous variable).
+
+Predictors: Historical sales data, marketing expenses, seasonality, economic indicators, and other relevant factors.
+
+Goal: Prediction. The goal is to forecast future sales based on historical trends and external factors. This helps businesses optimize inventory, plan marketing strategies, and allocate resources effectively.
+
+- **Educational Performance Prediction:**
+
+Response Variable: Academic performance scores (continuous variable).
+
+Predictors: Variables such as study hours, attendance, previous grades, socio-economic background, and learning style.
+
+Goal: Prediction and Inference. The goal is to predict students' academic performance based on various factors. Additionally, regression analysis may be used to infer the strength and direction of the relationships between predictors and academic outcomes, aiding in educational research.
+  
+__(c)__ **Cluster:**
+
+- **Customer Segmentation in Marketing:**
+
+Application: Businesses often use cluster analysis to segment their customer base into distinct groups based on purchasing behavior, demographics, or other relevant features.
+
+- **Healthcare Patient Stratification:**
+
+Application: In healthcare, cluster analysis can be applied to group patients with similar medical histories, genetic profiles, or responses to treatments.
+
+
+- **Document Categorization in Text Mining:**
+
+Application: Cluster analysis can be applied to categorize documents or texts based on their content and language patterns.
+
+
+## ISL Exercise 2.4.10 (30pts)
+
+Your can read in the `boston` data set directly from url <https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/Boston.csv>. A documentation of the `boston` data set is [here](https://www.rdocumentation.org/packages/ISLR2/versions/1.3-2/topics/Boston).
+
+::: {.panel-tabset}
+
+#### R
+
+```{r, evalue = F}
+library(tidyverse)
+Boston <- read_csv("https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/Boston.csv", col_select = -1) %>% 
+  print(width = Inf)
+
+
+```
+__(a)__
+
+```{r}
+dim(Boston)
+```
+  
+  - 506 rows of suburbs of Boston and 13 columns of predictors.  
+
+__(b)__
+```{r fig.width=10, fig.height=10}
+library(GGally) # ggpairs function
+selected_columns <- c("crim", "nox", "dis", "tax", "medv")
+ggpairs(
+  data = Boston, 
+  mapping = aes(alpha = 0.25), 
+  lower = list(continuous = "smooth")
+  ) + 
+  labs(title = "Boston Data")
+```
+  
+  - `crim` seems to have a negative linear relationship with `medv`, `rm` and `dis`.
+  - `nox` has a negative linear relationship with `dis`.
+  - `dis` has a positive linear relationship with `medv`.
+
+__(c)__ 
+
+```{r}
+# Correlation coefficients between CRIM and all other variables.
+cor(Boston[-1],Boston$crim)
+```
+
+  -  There are some correlations between `crim` and other variables.
+  - `crim` has a strong negative linear relationship with `dis`.
+  - `crim` has a strong positive linear relationship with `rad` and `tax`.
+
+__(d)__
+
+```{r}
+# Suburbs with crime rate higher than 2 s.d from the mean(higher than 95% of suburbs).
+High.Crime = Boston[which(Boston$crim > mean(Boston$crim) + 2*sd(Boston$crim)),]
+High.Crime
+range(Boston$crim) 
+```
+  
+  - There are 16 suburbs with a crime rate higher than 95% of the other suburbs.
+  - The range is very wide, it goes from a rate of near zero to 89.
+
+```{r}
+# Suburbs with tax rates higher than 2 s.d from the mean.
+High.Tax = Boston[which(Boston$tax > mean(Boston$tax) + 2*sd(Boston$tax)),]
+High.Tax
+range(Boston$tax)
+```
+ 
+ - There are no suburbs with a tax rate higher than 2 s.d. from the mean. This means tax rates are not extremely drastic.
+ - The range is from 187 to 711.
+
+
+```{r}
+# Suburbs with pupil teacher ratio higher than 2 s.d from the mean.
+High.PT = Boston[which(Boston$ptratio > mean(Boston$ptratio) + 2*sd(Boston$ptratio)),]
+High.PT
+range(Boston$ptratio)
+```
+
+  - There are no suburbs with a high pupil to teacher ratio.
+  - The range is from 12.6 to 22.0. 
+
+
+__(e)__
+
+```{r}
+sum(Boston$chas==1)
+```
+
+  - 35 suburbs of Boston bound the Charles river.
+  
+__(f)__
+
+```{r}
+median(Boston$ptratio)
+```
+
+__(g)__
+
+```{r}
+which(Boston$medv == min(Boston$medv))
+```
+
+   - There are two suburbs (399 & 406) that have the lowest median property values.
+   
+   
+```{r}
+# Values of other predictors for suburb 399
+Boston[399,]
+
+```
+
+```{r}
+summary(Boston)
+```
+  
+The census tract with the lowest median value for owner-occupied housing have an index 399. The median value of owner-occupied homes in these census tracts is 5.0. The range is from 5.00 to 50.00. The mean is 22.53. The 25th percentile is 17.02. The 75th percentile is 25.00. The 399 census tract has a crime rate of 38.35, a tax rate of 666, which are above mean values and are fairly high compared with the overall ranges. This means that this census tract with lower median value for owner-occupied housing has a higher crime rate and a tax rate. It seems that it is because of this census tract have a higher crime rate and a higher tax rate that this census tract has the lowest median value for owner-occupied housing.
+
+
+  
+__(h)__
+
+```{r}
+# More than 7 rooms
+sum(Boston$rm > 7)
+```
+  - 64 suburbs have more than 7 rooms.
+
+```{r}
+# More than 8 rooms
+sum(Boston$rm > 8)
+```
+  - 13 suburbs have more than 8 rooms.
+
+```{r}
+summary(Boston)
+```
+
+  - The median number of rooms is 6.2.
+  - The range is from 3.6 to 8.8.
+  - The mean is 6.3.
+  - The standard deviation is 0.7.
+  - The IQR is 0.8.
+  - The 25th percentile is 5.9.
+  - The 75th percentile is 6.6.
+  - The minimum is 3.6.
+  - The maximum is 8.8.
+```{r}
+summary(subset(Boston, rm > 8))
+```
+
+  - The median number of rooms in the census tracts average more than eight rooms per dwelling is 8.3.
+  - The range of rooms in the census tracts average more than eight rooms per dwelling is from 8.3 to 8.8.
+  - The mean of rooms in the census tracts average more than eight rooms per dwelling is 8.4.
+  - The standard deviation of rooms in the census tracts average more than eight rooms per dwelling is 0.1.
+  - The IQR of rooms in the census tracts average more than eight rooms per dwelling is 0.1.
+  - The 25th percentile of rooms in the census tracts average more than eight rooms per dwelling is 8.3.
+  - The 75th percentile of rooms in the census tracts average more than eight rooms per dwelling is 8.4.
+  - The minimum of rooms in the census tracts average more than eight rooms per dwelling is 8.3.
+  - The maximum of rooms in the census tracts average more than eight rooms per dwelling is 8.8.
+
+:::
+
+## ISL Exercise 3.7.3 (12pts)
+
+Suppose we have a data set with five predictors, X1 = GPA, X2 = IQ, X3 = Level (1 for College and 0 for High School), X4 = Interaction between GPA and IQ, and X5 = Interaction between GPA and Level. The response is starting salary after graduation (in thousands of dollars). Suppose we use least squares to fit the model, and get $\hat {\beta_0}$ = 50, $\hat {\beta_1}$ = 20, $\hat {\beta_2}$ = 0.07, $\hat {\beta_3}$ = 35, $\hat {\beta_4}$ = 0.01, $\hat {\beta_5}$ = −10.
+
+**Answer:**
+
+__(a)__ iii is correct.
+
+The model can be written as:
+
+$$
+Salary = \beta_0 + \beta_1X1 + \beta_2X2 + \beta_3X3 + \beta_4X4 + \beta_5X5 = 50 + 20X1 + 0.07X2 + 35X3 + 0.01X4 - 10X5
+$$
+for fixed IQ and GPA at x2’ and x1’: 
+$$
+Salary (high school) = 50 + 20x1’ + 0.07x2’ + 35*0 + 0.01*(x1’*x2’) -10*(x1’*0) 
+= 50 + 20x1’ + 0.07x2’ + 0.01*(x1’*x2’)
+
+$$
+$$
+Salary (college) = 50 + 20x1’ + 0.07x2’ + 35*1 + 0.01*(x1’*x2’) -10*(x1’*1) = 50 + 20x1’ + 0.07x2’ + 35 + 0.01(x1’.x2’) - 10*(x1’) = Salary (high school) + 35 - 10*x1’
+$$
+From here:
+$$
+Salary (college) - Salary (high school) = 35 - 10x1’
+$$
+Assuming the salary difference to be greater than or equal to zero, we get:
+$$
+35 - 10*x1’ >= 0 \\
+x1’ <= 3.5
+$$
+Assuming the salary difference to be less than or equal to zero, we get:
+$$
+35 - 10*x1’ <= 0 \\
+x1’ >= 3.5
+$$
+Hence, for a fixed value of IQ and GPA, high school graduates earn more, on average, than college graduates provided that the GPA is greater than or equal to 3.5.
+
+__(b)__ Prediction the salary of a college graduate with IQ of 110 and a GPA of 4.0 is 137.1 (in thousands of dollars).
+$$
+Salary = 50+20*4+0.07*110+35+0.01*(110*4)-10*(4*1) = 137.1 
+$$
+__(c)__ False. Because the magnitude of coefficient is not an indicator of statistical significance. The p-value of the coefficient is a better indicator of statistical significance.
+
+
+## ISL Exercise 3.7.15 (20pts)
+
+This problem involves the Boston data set, which we saw in the lab for this chapter. We will now try to predict per capita crime rate using the other variables in this data set. In other words, per capita crime rate is the response, and the other variables are the predictors.
+
+**Answer:**
+
+__(a)__ For each predictor, fit a simple linear regression model to predict the response. Describe your results. In which of the models is there a statistically significant association between the predictor and the response? Create some plots to back up your assertions.
+
+
+
+```{r}
+#Linear regression of per capita crime onto each variable.
+lm.zn = lm(crim~zn, data=Boston)
+lm.indus = lm(crim~indus, data=Boston)
+lm.chas = lm(crim~chas, data=Boston)
+lm.nox = lm(crim~nox, data=Boston)
+lm.rm = lm(crim~rm, data=Boston)
+lm.age = lm(crim~age, data=Boston)
+lm.dis = lm(crim~dis, data=Boston)
+lm.rad = lm(crim~rad, data=Boston)
+lm.tax = lm(crim~tax, data=Boston)
+lm.ptratio = lm(crim~ptratio, data=Boston)
+lm.lstat = lm(crim~lstat, data=Boston)
+lm.medv = lm(crim~medv, data=Boston)
+
+```
+
+```{r}
+
+# Dataframe with empty columns for p-values and coefficients.
+df_pvalues = data.frame("p_values"= NA[1:12])
+df_pvalues$coefficients = NA
+
+# Change row name to predictor names.
+row.names(df_pvalues) = names(Boston[2:13])
+row.names(df_pvalues) 
+# For loop to extract and add to dataframe each p-value and coefficient.
+for (i in 1: 12){
+   lm_str = str2lang(paste("lm",row.names(df_pvalues)[i], sep="."))
+   df_pvalues[i,1]= summary(eval(lm_str))$coefficients[2,4]
+   df_pvalues[i,2]= summary(eval(lm_str))$coefficients[2,1]
+   }
+
+df_pvalues
+
+```
+   - The p-values show that all predictors except `chas` are statistically significant.
+   - The coefficients show a strong positive linear relationship between `crim` and `nox`, and a negative relationship between `crim` and `rm``. We should expect `crim` to increase as `nox` increases and decrease as `rm` increases. See plotts below showing scatter plots with regression lines in each case.
+
+```{r}
+attach(Boston)
+plot(nox,crim, main="Scatter Plot of crim vs nox")
+abline(lm.nox, lwd =3, col ="blue")
+
+plot(rm,crim, main="Scatter Plot of crim vs rm")
+abline(lm.rm, lwd =3, col ="blue")
+```
+
+__(b)__ 
+
+```{r}
+# Regression using all predictors.
+lm.fit_all = lm(crim~., data=Boston)
+summary(lm.fit_all)
+```
+
+   - The coefficients show a strong negative relationship between `crim` and `nox`. We should expect `crim` to decrease as `nox` increases.
+   
+   
+   - Null hypothesis can be rejected for `zn`, `dis`, `rad` and `medv`.
+   
+__(c)__
+
+- The coefficient estimates and statistical significance for predictors have changed. For example, `ptratio` has a negative coefficient here, whereas it had a positive one in simple regression. `nox` has a negative coefficient here, whereas it had a positive one in simple regression. In simple regression the coefficient of a predictor is calculated while ignoring all other predictors, but in multiple regression it is calculated while holding other predictors fixed. The difference in values between results from (a) and (b) isn't contradictory if the variables have collinearity. This means that the variables are correlated with each other, and therefore the effect of one variable on the response is confounded by the effect of another variable. This is why the coefficients change when other predictors are added to the model.
+   
+```{r}
+# Dataframe with coefficients from multiple regression and an empty column for coefficients from simple regression.
+df_coefs = data.frame("multi_coefs"=summary(lm.fit_all)$coef[-1,1]) # coef[-1,1] extracts the coefficients from a linear regression model. Exclude the first row and select the first column.
+df_coefs$simple_coefs = NA 
+
+# Loop through each predictor, run linear regression and add values to dataframe.
+for(i in row.names(df_coefs)){
+    reg_model =  lm(crim~eval(str2lang(i)), data=Boston)
+    df_coefs[row.names(df_coefs)==i, "simple_coefs"] = coef(reg_model)[2] # Intercept (coefficient 1); slope (coefficient 2)
+}
+
+
+# Plot chart.
+plot(df_coefs$simple_coefs, df_coefs$multi_coefs, xlab="Simple Regression Coefficients", ylab="Multiple Regression Coefficients")
+
+```
+
+__(d)__ Is there evidence of non-linear association between any of the predictors and the response? To answer this question, for each predictor X, fit a model of the form
+$$
+Y = \beta_0 + \beta_1X + \beta_2X^2 + \beta_3X^3 + \epsilon.
+$$
+
+```{r}
+# Dataframe with columns for p-values of all polynomial terms.
+df_poly = data.frame("variables"=names(Boston[2:13])) # a data frame with one column ("variables") that contains the names of predictor variables from columns 2 through 13 of the 'Boston' dataset.
+df_poly$P_values_deg1 = NA
+df_poly$P_values_deg2 = NA
+df_poly$P_values_deg3 = NA
+
+# Removed CHAS as it is a qualitative variable. It also caused error : 'degree' must be less than number of unique points.
+df_poly = df_poly[-3,]
+row.names(df_poly) <- NULL # Reset row numbers. This is done to ensure that row indices are consecutive after removing a row.
+
+
+# Loop through variables, run polynomial regression and add p-values to dataframe.
+# Regression formula created from strings of each variable combined using paste.
+for(i in 1:11){
+    frmla1 = paste("poly(",paste(df_poly$variables[i],3,sep=","),")",sep="")
+    frmla2 = paste("crim",frmla1,sep="~")
+    frmla3 = as.formula(frmla2)
+    poly_model = lm(frmla3, data=Boston)
+    summary(poly_model)$coefficients
+    df_poly[i,2] = summary(poly_model)$coefficients[2,4]
+    df_poly[i,3] = summary(poly_model)$coefficients[3,4]
+    df_poly[i,4] = summary(poly_model)$coefficients[4,4]
+}
+
+
+df_poly
+
+```
+
+
+   - The degree 1 coefficients are all statistically significant.
+   - The degree 2 (squared fit) coefficients are all statistically significant in general. 
+   - The degree 3 (cubic fit) coefficients of indus, nox, age, dis, ptratio and medv are statistically significant in general.
+   - The p-values support a quadratic fit for all variables, and also support a cubic fit for medv, dis, age, nox, ptratio and indus. Therefore, there is evidence of a non-linear relationship (either quadratic or cubic)  all variables.
+
+
+## Bonus question (20pts)
+
+For multiple linear regression, show that $R^2$ is equal to the correlation between the response vector $\mathbf{y} = (y_1, \ldots, y_n)^T$ and the fitted values $\hat{\mathbf{y}} = (\hat y_1, \ldots, \hat y_n)^T$. That is
+$$
+R^2 = 1 - \frac{\text{RSS}}{\text{TSS}} = [\operatorname{Cor}(\mathbf{y}, \hat{\mathbf{y}})]^2.
+$$
+
+**Answer:**
+$$
+\begin{align*}
+R^2 &= 1 - \frac{\text{RSS}}{\text{TSS}} =\frac{\text{ESS}}{\text{TSS}} \\
+&= \frac{\sum_{i=1}^n ( \hat y_i - \bar y)^2}{\sum_{i=1}^n (y_i - \bar y)^2} \\
+\end{align*}
+$$
+$$
+\begin{align*}
+Cor(\mathbf{y}, \hat{\mathbf{y}}) &= \frac{Cov(\mathbf{y}, \hat{\mathbf{y}})}{\sigma_y \sigma_{\hat y}} \\
+&= \frac{Cov(\mathbf{\hat{\mathbf{y}}+\epsilon}, \hat{\mathbf{y}})}{\sqrt{Var(\mathbf{y})} \sqrt{Var(\hat{\mathbf{y}})}} \\
+&= \frac{Cov(\mathbf{\hat{\mathbf{y}}}, \hat{\mathbf{y}})+Cov(\epsilon, \hat{\mathbf{y}})}{\sqrt{Var(\mathbf{y})} \sqrt{Var(\hat{\mathbf{y}})}} \\
+\end{align*}
+$$
+$$
+\epsilon \perp \hat{\mathbf{y}} \\
+Cov(\epsilon, \hat{\mathbf{y}}) = 0
+$$
+$$
+\begin{align*}
+Cor(\mathbf{y}, \hat{\mathbf{y}}) =\frac{Cov(\mathbf{\hat{\mathbf{y}}}, \hat{\mathbf{y}})}{\sqrt{Var(\mathbf{y})} \sqrt{Var(\hat{\mathbf{y}})}} \\
+\end{align*}
+$$
+$$
+\begin{align*}
+Cor(\mathbf{y}, \hat{\mathbf{y}}) ^2 &=\frac{Cov(\mathbf{\hat{\mathbf{y}}}, \hat{\mathbf{y}})^2}{Var(\mathbf{y}) Var(\hat{\mathbf{y}})} \\
+&= \frac{ Var(\hat{\mathbf{y}})^2 } {Var(\mathbf{y}) Var(\hat{\mathbf{y}})} \\
+&= \frac{ Var(\hat{\mathbf{y}}) } {Var(\mathbf{y})} \\
+&= \frac{ \sum_{i=1}^n ( \hat y_i - \bar y)^2 } {\sum_{i=1}^n (y_i - \bar y)^2} \\
+\end{align*}
+$$
+
+$$
+R^2 = 1 - \frac{\text{RSS}}{\text{TSS}} = [\operatorname{Cor}(\mathbf{y}, \hat{\mathbf{y}})]^2.
+$$
+
+
+
+
+
